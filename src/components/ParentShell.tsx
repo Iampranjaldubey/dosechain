@@ -11,8 +11,8 @@ export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebro
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-secondary/70 to-transparent" />
-      <Footprint aria-hidden className="pointer-events-none absolute right-[8%] top-24 hidden h-10 w-10 rotate-12 text-mint/50 md:block" />
-      <Footprint aria-hidden className="pointer-events-none absolute right-[14%] top-40 hidden h-8 w-8 -rotate-6 text-mint/40 md:block" />
+      <Footprint className="pointer-events-none absolute right-[8%] top-24 hidden h-10 w-10 rotate-12 text-mint/50 md:block" />
+      <Footprint className="pointer-events-none absolute right-[14%] top-40 hidden h-8 w-8 -rotate-6 text-mint/40 md:block" />
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
           <Link to="/" aria-label="DoseChain home"><Logo /></Link>
