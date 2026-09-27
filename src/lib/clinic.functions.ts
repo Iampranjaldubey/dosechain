@@ -20,27 +20,30 @@ export const getDashboard = createServerFn({ method: "POST" })
     const now = await nowIso(sb);
     const today = todayIst(now);
     const [visits, bites, vials, pending, impact, clock] = await Promise.all([
-      sb.from("visits").select("id, kind, day, slot_label, status, children(name, public_token), bite_cases(patient_name, public_token)").eq("day", today).order("slot_label"),
+      sb.from("visits").select("id, kind, day, slot_label, status, bite_case_id, children(name, public_token)").eq("day", today).order("slot_label"),
       sb.from("bite_cases").select("id, patient_name, age_years, category, animal, bitten_on, public_token, bite_doses(id, day_offset, due_date, status)").eq("status", "active").order("bitten_on", { ascending: false }),
       sb.from("vials").select("*").order("opened_at", { ascending: false }).limit(3),
       sb.from("plan_changes").select("id", { count: "exact", head: true }).eq("status", "pending"),
       sb.from("impact_events").select("kind, minutes_saved, created_at").gte("created_at", new Date(Date.now() - 28 * 864e5).toISOString()),
       sb.from("app_clock").select("demo_now").eq("id", 1).single(),
     ]);
+    const caseById = new Map(((bites.data ?? []) as any[]).map((b) => [b.id, b]));
+    const visitRows = ((visits.data ?? []) as any[]).map((v) => ({ ...v, bite_cases: v.bite_case_id ? caseById.get(v.bite_case_id) ?? null : null }));
     const ev = (impact.data ?? []) as { kind: string; minutes_saved: number }[];
     return {
       now,
       today,
       demoClock: clock.data?.demo_now ?? null,
-      visits: visits.data ?? [],
+      visits: visitRows,
       bites: bites.data ?? [],
       vials: vials.data ?? [],
       pendingCount: pending.count ?? 0,
       impact: {
         minutes: ev.reduce((s, e) => s + (e.minutes_saved ?? 0), 0),
-        reminders: ev.filter((e) => e.kind === "reminder_sent").length,
-        replans: ev.filter((e) => e.kind === "auto_replan" || e.kind === "bite_rescue").length,
+        reminders: ev.filter((e) => e.kind === "reminder_sent" || e.kind === "recall_call_avoided").length,
+        replans: ev.filter((e) => ["auto_replan", "replan_automated", "bite_rescue", "bite_course_completed"].includes(e.kind)).length,
         confirms: ev.filter((e) => e.kind === "auto_confirm").length,
+        vialDoses: ev.filter((e) => e.kind === "vial_dose_saved").length,
       },
     };
   });

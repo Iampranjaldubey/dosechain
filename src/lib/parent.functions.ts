@@ -233,7 +233,7 @@ export const createBooking = createServerFn({ method: "POST" })
 // ---------- child timeline page ----------
 
 export const getChildByToken = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ token: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ token: z.string().min(3).max(80) }).parse(data))
   .handler(async ({ data }) => {
     const a = await admin();
     const { data: child } = await a
@@ -277,7 +277,7 @@ export const getChildByToken = createServerFn({ method: "GET" })
 // ---------- bite course page ----------
 
 export const getBiteCaseByToken = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ token: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ token: z.string().min(3).max(80) }).parse(data))
   .handler(async ({ data }) => {
     const a = await admin();
     const { data: bc } = await a
