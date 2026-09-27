@@ -28,3 +28,7 @@
 - [ ] Multi-clinic admin panel: staff roles so each clinic has its own dashboard and capacity data
 - [ ] Multi-clinic wiring (in progress): clinic.functions/followup/parent.functions clinic-scoped; clinic-context + clinic.tsx membership UI (join/create); dashboard/approvals/capacity use active clinic; verify build + UAT
 - [x] Hero: remove blob section, thick sticker border around hero image (user request)
+
+- [x] Input validation sweep: phone numbers exactly 10 digits (Indian mobile), other length/format limits across all forms + server
+- [x] Child Health Passport (in progress)
+- [x] Hero image: revert to original thick rounded border

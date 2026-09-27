@@ -1,3 +1,5 @@
+import { PhoneInput } from "@/components/PhoneInput";
+import { isValidMobile } from "@/lib/validation";
 import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -192,7 +194,7 @@ function BookPage() {
           sex,
           history,
           parentName: parentName.trim(),
-          phone: phone.trim(),
+          phone: `+91${phone}`,
           lang,
           slotDate,
           slotLabel,
@@ -234,6 +236,7 @@ function BookPage() {
               <Field label={t.childName}>
                 <input
                   value={childName}
+                  maxLength={80}
                   onChange={(e) => setChildName(e.target.value)}
                   className="w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Aarav"
@@ -411,18 +414,13 @@ function BookPage() {
               <Field label={t.parentName}>
                 <input
                   value={parentName}
+                  maxLength={80}
                   onChange={(e) => setParentName(e.target.value)}
                   className="w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring"
                 />
               </Field>
               <Field label={t.parentPhone}>
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  inputMode="tel"
-                  placeholder="+91 …"
-                  className="w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring"
-                />
+                <PhoneInput value={phone} onChange={setPhone} required />
               </Field>
               {submitError && <p className="text-sm font-semibold text-overdue">{submitError}</p>}
             </div>
@@ -452,7 +450,7 @@ function BookPage() {
             <button
               type="button"
               onClick={submit}
-              disabled={submitting || parentName.trim() === "" || phone.trim().length < 8}
+              disabled={submitting || parentName.trim() === "" || !isValidMobile(phone)}
               className="min-h-11 rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
             >
               {submitting ? t.loading : t.confirmBooking}

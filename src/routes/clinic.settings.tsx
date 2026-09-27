@@ -1,3 +1,5 @@
+import { isValidMobile, mobileDigits } from "@/lib/validation";
+import { PhoneInput } from "@/components/PhoneInput";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -151,11 +153,14 @@ function Profile({ clinicId, isDoctor }: { clinicId: string; isDoctor: boolean }
       <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
         <h2 className="font-display text-xl">Clinic details</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {([["clinic_name", "Clinic name"], ["doctor_name", "Doctor's name"], ["city", "Area / city"], ["phone", "Phone"]] as const).map(([k, l]) => (
+          {([["clinic_name", "Clinic name", 120], ["doctor_name", "Doctor's name", 80], ["city", "Area / city", 80]] as const).map(([k, l, max]) => (
             <label key={k} className="text-sm font-medium">{l}
-              <input disabled={dis} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} className={`${input} mt-1 w-full`} />
+              <input disabled={dis} maxLength={max} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} className={`${input} mt-1 w-full`} />
             </label>
           ))}
+          <div className="text-sm font-medium">Phone
+            <div className="mt-1"><PhoneInput disabled={dis} value={f.phone} onChange={(d) => setF({ ...f, phone: d })} /></div>
+          </div>
         </div>
       </section>
       <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">

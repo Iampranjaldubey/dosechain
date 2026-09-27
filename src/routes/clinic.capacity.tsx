@@ -143,10 +143,10 @@ function CapacityPage() {
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <label className="block text-sm font-medium">Peak-time notes
-            <textarea className="mt-1 w-full rounded-lg border border-input bg-card p-3" rows={3} value={peakNotes} onChange={(e) => setPeak(e.target.value)} />
+            <textarea className="mt-1 w-full rounded-lg border border-input bg-card p-3" rows={3} maxLength={1500} value={peakNotes} onChange={(e) => setPeak(e.target.value)} />
           </label>
           <label className="block text-sm font-medium">Constraints
-            <textarea className="mt-1 w-full rounded-lg border border-input bg-card p-3" rows={3} value={constraints} onChange={(e) => setCons(e.target.value)} />
+            <textarea className="mt-1 w-full rounded-lg border border-input bg-card p-3" rows={3} maxLength={1500} value={constraints} onChange={(e) => setCons(e.target.value)} />
           </label>
         </div>
 

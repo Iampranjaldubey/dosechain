@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { indianMobile } from "./validation";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export interface Membership { clinicId: string; clinicName: string; role: string }
@@ -23,7 +24,7 @@ export const whoAmI = createServerFn({ method: "POST" })
 
 export const createClinic = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ name: z.string().min(2).max(120), city: z.string().max(80).optional(), phone: z.string().max(20).optional() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ name: z.string().min(2).max(120), city: z.string().trim().max(80).optional().nullable(), phone: indianMobile.optional().nullable() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: cid, error } = await (context.supabase as any).rpc("create_clinic", { _name: data.name, _city: data.city ?? "", _phone: data.phone ?? "" });
     if (error) throw new Error(error.message);
@@ -423,7 +424,7 @@ export const saveClinicProfile = createServerFn({ method: "POST" })
       clinic_name: z.string().trim().min(2).max(120),
       doctor_name: z.string().trim().max(120),
       city: z.string().trim().max(120),
-      phone: z.string().trim().max(20),
+      phone: z.union([z.literal(""), indianMobile]),
       opd_hours: Week,
       bite_windows: Week,
       holidays: z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).max(60),

@@ -5,6 +5,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { indianMobile } from "./validation";
 import {
   buildPlan,
   type DoseDef,
@@ -128,12 +129,12 @@ export const getBookingCatalogue = createServerFn({ method: "GET" }).handler(asy
 // ---------- create a booking ----------
 
 const bookingInput = z.object({
-  childName: z.string().min(1).max(80),
+  childName: z.string().trim().min(1).max(80),
   dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   sex: z.enum(["girl", "boy"]),
   history: z.array(z.object({ code: z.string(), givenOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), where: z.enum(["clinic", "govt"]) })),
-  parentName: z.string().min(1).max(80),
-  phone: z.string().min(8).max(15),
+  parentName: z.string().trim().min(1).max(80),
+  phone: indianMobile,
   lang: z.enum(["en", "hi"]),
   slotDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   slotLabel: z.string().min(1).max(40),
@@ -342,12 +343,12 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
 // ---------- parent onboarding: create guardian + first child, then book ----------
 
 const startInput = z.object({
-  childName: z.string().min(1).max(80),
+  childName: z.string().trim().min(1).max(80),
   dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   sex: z.enum(["girl", "boy"]),
   history: z.array(z.object({ code: z.string(), givenOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), where: z.enum(["clinic", "govt"]) })),
-  parentName: z.string().min(1).max(80),
-  phone: z.string().min(8).max(15),
+  parentName: z.string().trim().min(1).max(80),
+  phone: indianMobile,
   lang: z.enum(["en", "hi"]),
 });
 
