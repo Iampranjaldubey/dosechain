@@ -12,3 +12,7 @@
 
 ## UX overhaul (user feedback Sep 27)
 - [x] Landing page feels basic/generic — do UX engineering: real-website feel, richer sections, motion, hierarchy (keep locked Fresh Mint theme + fonts)
+
+## Differentiation (user, Sep 27)
+- [ ] Research + engineer high-value features that win the challenge (multi-agent research → plan → build)
+- [ ] Enable email sign-up for staff (currently disabled — blocks clinic login + UAT)
