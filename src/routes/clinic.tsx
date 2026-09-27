@@ -21,10 +21,11 @@ export const Route = createFileRoute("/clinic")({
 });
 
 const NAV = [
-  { to: "/clinic", label: "Today" },
-  { to: "/clinic/approvals", label: "Approvals" },
-  { to: "/clinic/messages", label: "Replies" },
-  { to: "/clinic/capacity", label: "Capacity" },
+  { to: "/clinic", label: "Today", hint: "Visits, vial, bite lane" },
+  { to: "/clinic/recall", label: "Recall", hint: "Missed & overdue" },
+  { to: "/clinic/approvals", label: "Approvals", hint: "Plan changes & staff" },
+  { to: "/clinic/messages", label: "Replies", hint: "Parent messages" },
+  { to: "/clinic/capacity", label: "Capacity", hint: "AI bottleneck check" },
 ] as const;
 
 function ClinicLayout() {
@@ -58,25 +59,37 @@ function ClinicLayout() {
         </div>
       </div>
     );
+  const role = me.data?.roles.includes("doctor") ? "Doctor" : "Desk";
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 border-b border-border bg-card/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-3">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[250px_1fr]">
+      <aside className="sticky top-0 z-30 border-b border-border bg-card lg:h-screen lg:border-b-0 lg:border-r">
+        <div className="flex items-center justify-between gap-3 px-5 py-4 lg:block">
           <Link to="/"><Logo /></Link>
-          <nav className="flex flex-1 flex-wrap gap-1">
-            {NAV.map((n) => (
-              <Link key={n.to} to={n.to} activeOptions={{ exact: true }} className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-muted" activeProps={{ className: "bg-secondary text-secondary-foreground" }}>
-                {n.label}
-              </Link>
-            ))}
-          </nav>
-          <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {me.data?.roles.includes("doctor") ? "Doctor" : "Desk"}
-          </span>
-          <button onClick={() => supabase.auth.signOut()} className="text-sm text-muted-foreground hover:text-foreground">Sign out</button>
+          <p className="hidden text-xs uppercase tracking-wide text-muted-foreground lg:mt-2 lg:block">Clinic admin</p>
         </div>
-      </header>
-      <Outlet />
+        <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:pb-0">
+          {NAV.map((n) => (
+            <Link key={n.to} to={n.to} activeOptions={{ exact: true }} className="shrink-0 rounded-xl px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-muted" activeProps={{ className: "bg-secondary text-secondary-foreground" }}>
+              <span className="block">{n.label}</span>
+              <span className="hidden text-xs font-normal opacity-70 lg:block">{n.hint}</span>
+            </Link>
+          ))}
+        </nav>
+        <div className="hidden border-t border-border p-4 lg:absolute lg:inset-x-0 lg:bottom-0 lg:block">
+          <p className="truncate text-sm font-semibold">{me.data?.email}</p>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{role}</span>
+            <button onClick={() => supabase.auth.signOut()} className="text-sm text-muted-foreground hover:text-foreground">Sign out</button>
+          </div>
+        </div>
+      </aside>
+      <main className="min-w-0 px-5 py-8 lg:px-10">
+        <div className="mb-4 flex items-center justify-end gap-3 lg:hidden">
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold uppercase text-muted-foreground">{role}</span>
+          <button onClick={() => supabase.auth.signOut()} className="text-sm text-muted-foreground">Sign out</button>
+        </div>
+        <Outlet />
+      </main>
     </div>
   );
 }
