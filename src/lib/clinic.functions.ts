@@ -334,3 +334,29 @@ export const sendDraftReply = createServerFn({ method: "POST" })
     await sb.from("impact_events").insert({ kind: "auto_confirm", minutes_saved: 5 });
     return { ok: true };
   });
+
+// ---------- per-clinic settings + saved capacity planner data ----------
+
+export const getClinicSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: s } = await (context.supabase as any)
+      .from("clinic_settings")
+      .select("clinic_name, doctor_name, city, phone, capacity")
+      .eq("clinic_id", data.clinicId)
+      .single();
+    return s ?? null;
+  });
+
+export const saveCapacity = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid(), capacity: z.any() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as any)
+      .from("clinic_settings")
+      .update({ capacity: data.capacity })
+      .eq("clinic_id", data.clinicId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
