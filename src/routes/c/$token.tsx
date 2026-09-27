@@ -6,6 +6,7 @@ import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
 import { getChildByToken } from "@/lib/parent.functions";
 import { cn } from "@/lib/utils";
+import { AddToAccount } from "@/components/AddToAccount";
 
 export const Route = createFileRoute("/c/$token")({
   head: () => ({
@@ -104,6 +105,7 @@ function ChildPage() {
           <span><span className="block font-display text-lg">{lang === "hi" ? "स्वास्थ्य पासपोर्ट" : "Health Passport"}</span><span className="text-sm text-muted-foreground">{lang === "hi" ? "विज़िट, दवाइयाँ, ग्रोथ, रिपोर्ट — किसी भी डॉक्टर को दिखाएँ" : "Visits, medicines, growth, reports — show any doctor"}</span></span>
           <span className="text-primary">→</span>
         </Link>
+        <AddToAccount token={token} />
         {nextVisit && (
           <div className="mt-6 rounded-2xl border-2 border-primary/30 bg-secondary/60 p-5">
             <div className="flex items-center justify-between gap-2">
