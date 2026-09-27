@@ -109,8 +109,8 @@ export async function runAutomations(a: Db) {
       a,
       d.bite_cases.guardian_id,
       "bite_reminder",
-      `${d.bite_cases.patient_name}: day-${d.day_offset} rabies dose is due ${when}. Please come in the bite window (morning 10:00–10:45 or evening 17:30–18:00). Do not skip — the gap matters.`,
-      `${d.bite_cases.patient_name}: रेबीज़ का दिन-${d.day_offset} टीका ${whenHi} है। कृपया बाइट विंडो (सुबह 10:00–10:45 या शाम 17:30–18:00) में आएं। टीका न छोड़ें।`,
+      `${d.bite_cases.patient_name}: day-${d.day_offset} rabies dose is due ${when}. Please come in the bite window (morning 10:00–10:45 AM or evening 5:30–6:00 PM IST). Do not skip — the gap matters.`,
+      `${d.bite_cases.patient_name}: रेबीज़ का दिन-${d.day_offset} टीका ${whenHi} है। कृपया बाइट विंडो (सुबह 10:00–10:45 या शाम 5:30–6:00 IST) में आएं। टीका न छोड़ें।`,
       { parsed: { bite_dose_id: d.id } },
     );
     await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: s.mins_per_recall_call ?? 4 });
