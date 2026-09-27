@@ -156,7 +156,7 @@ export function buildPlan(
   }
 
   if (visits.length > 0) {
-    visits[0].status = visits[0].date <= today ? "due" : "bookable";
+    visits[0]!.status = visits[0]!.date <= today ? "due" : "bookable";
   }
   for (const v of visits) {
     if (diffDays(v.date, today) < -30) v.flags.push("overdue_30d");
@@ -164,7 +164,7 @@ export function buildPlan(
   const rota1 = visits.find((v) => v.doses.includes("ROTA1"));
   if (rota1 && diffDays(rota1.date, dob) > 105) rota1.flags.push("rota_age_limit");
   const overdueCount = visits.filter((v) => v.date < today).length;
-  if (overdueCount > 1) visits[0].flags.push("catchup_needed");
+  if (overdueCount > 1) visits[0]!.flags.push("catchup_needed");
 
   return visits;
 }
