@@ -29,7 +29,7 @@ export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebro
       <main className="relative flex-1">{children}</main>
       <footer className="relative mt-16 border-t border-border bg-card/60">
         <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span className="flex items-center gap-2"><Mascot className="h-8 w-8" />© 2026 Nanhe Kadam Child Clinic · Vijay Nagar, Indore</span>
+          <span className="flex items-center gap-2"><Footprint className="h-6 w-6 text-primary/50" />© 2026 Nanhe Kadam Child Clinic · Vijay Nagar, Indore</span>
           <span>{hi ? "IAP-ACVIP 2023 व NCDC रेबीज़ दिशानिर्देश · डॉक्टर हर योजना की पुष्टि करते हैं" : "IAP-ACVIP 2023 & NCDC rabies guidelines · the doctor confirms every plan"}</span>
         </div>
       </footer>
