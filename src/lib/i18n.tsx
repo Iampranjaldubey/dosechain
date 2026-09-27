@@ -235,6 +235,22 @@ export function LangProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/** "10:00–13:00" -> "10:00 AM–1:00 PM" (parent-facing AM/PM standard). */
+export function fmtSlot(label: string): string {
+  return label
+    .split("–")
+    .map((t) => {
+      const [hStr, mStr] = t.trim().split(":");
+      const h = Number(hStr);
+      const m = Number(mStr ?? "0");
+      if (Number.isNaN(h)) return t;
+      const suffix = h >= 12 ? "PM" : "AM";
+      const hh = h % 12 === 0 ? 12 : h % 12;
+      return `${hh}:${String(Number.isNaN(m) ? 0 : m).padStart(2, "0")} ${suffix}`;
+    })
+    .join("–");
+}
+
 export function useLang() {
   return useContext(LangContext);
 }

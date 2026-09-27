@@ -20,7 +20,7 @@ export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebro
           <Link to="/" aria-label="DoseChain home"><Logo /></Link>
           {eyebrow && <span className="hidden rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground sm:inline">{eyebrow}</span>}
           <nav className="ml-auto flex items-center gap-1 text-sm">
-            <Link to="/book" className="hidden rounded-full px-3 py-2 font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex">{hi ? "टीका बुक करें" : "Book"}</Link>
+            <Link to="/start" className="hidden rounded-full px-3 py-2 font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex">{hi ? "टीका बुक करें" : "Book"}</Link>
             <a href="/#bite" className="hidden rounded-full px-3 py-2 font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex">{hi ? "कुत्ते ने काटा?" : "Bite help"}</a>
             <LangToggle />
           </nav>

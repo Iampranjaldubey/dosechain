@@ -69,7 +69,7 @@ function Index() {
           <div className="flex items-center gap-2">
             <LangToggle />
             <Link
-              to="/book"
+              to="/start"
               className="inline-flex min-h-10 items-center rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md sm:px-5 sm:text-sm"
             >
               {t.bookVaccine}
@@ -90,7 +90,7 @@ function Index() {
           <p className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">{t.heroSub}</p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              to="/book"
+              to="/start"
               className="inline-flex min-h-12 items-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg"
             >
               {t.bookVaccine}
@@ -123,8 +123,6 @@ function Index() {
         </Reveal>
         <Reveal delay={150}>
           <div className="relative">
-            <div className="blob-soft absolute -inset-5 -z-10 bg-secondary/70" aria-hidden />
-            <div className="blob-soft absolute -right-6 -top-6 -z-10 h-24 w-24 bg-[var(--butter)] opacity-50" aria-hidden />
             <div className="absolute -right-2 -top-8 z-10 sm:-right-6 sm:-top-10">
               <Sticker>{t.stickerHero}</Sticker>
             </div>
@@ -133,7 +131,7 @@ function Index() {
               alt="A mother carrying her baby along a trail of footprints toward Nanhe Kadam Child Clinic"
               width={1024}
               height={1024}
-              className="w-full rounded-3xl border border-border shadow-xl"
+              className="w-full rounded-[2.25rem] border-[6px] border-card bg-card p-2 shadow-xl ring-4 ring-secondary/60"
             />
             {/* floating next-visit card */}
             <div className="absolute bottom-4 left-4 flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-lg sm:-bottom-5 sm:left-5">
@@ -255,7 +253,7 @@ function Index() {
                 {t.visitCall}
               </a>
               <Link
-                to="/book"
+                to="/start"
                 className="inline-flex min-h-12 items-center rounded-full border-2 border-primary-foreground/50 px-7 text-base font-semibold transition-all hover:-translate-y-0.5 hover:bg-primary-foreground/10"
               >
                 {t.bookVaccine}

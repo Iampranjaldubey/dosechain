@@ -2,10 +2,10 @@ import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { useLang } from "@/lib/i18n";
+import { useLang, fmtSlot } from "@/lib/i18n";
 import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
-import { getBookingCatalogue, createBooking } from "@/lib/parent.functions";
+import { getBookingCatalogue, createBooking, bookForChild } from "@/lib/parent.functions";
 import { buildPlan, addDays, diffDays, dow, type EngineSettings, type GivenDose } from "@/lib/dosechain";
 import { readVaccineCard } from "@/lib/media.functions";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,10 @@ export const Route = createFileRoute("/book")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const child = typeof search["child"] === "string" && (search["child"] as string).length >= 3 ? (search["child"] as string) : undefined;
+    return (child ? { child } : {}) as { child?: string };
+  },
   component: BookPage,
 });
 
@@ -50,6 +54,7 @@ interface HistoryItem {
 }
 
 function BookPage() {
+  const { child } = Route.useSearch();
   const { t, lang } = useLang();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["booking-catalogue"],
@@ -118,7 +123,7 @@ function BookPage() {
       const d = addDays(today, i);
       const wins = data.settings.opdHours[WEEKDAYS[dow(d)] ?? "sun"] ?? [];
       if (wins.length === 0 || eng.holidays.includes(d)) continue;
-      out.push({ date: d, slots: wins.map((w: [string, string]) => `${w[0]}–${w[1]}`) });
+      out.push({ date: d, slots: wins.map((w: [string, string]) => fmtSlot(`${w[0]}–${w[1]}`)) });
     }
     return out;
   }, [data, eng, today]);
@@ -129,6 +134,13 @@ function BookPage() {
     return (
       <Shell>
         <p className="py-20 text-center text-overdue">{t.retry}</p>
+      </Shell>
+    );
+
+  if (child)
+    return (
+      <Shell>
+        <BookExisting token={child} catalogue={data} />
       </Shell>
     );
 
@@ -464,6 +476,85 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Shell({ children }: { children: React.ReactNode }) {
   const hi = useLang().lang === "hi";
   return <ParentShell eyebrow={hi?"बुकिंग":"Booking"}>{children}</ParentShell>;
+}
+
+/** Slot picker + confirm for a child created through onboarding (/start) — token-scoped. */
+function BookExisting({ token, catalogue }: { token: string; catalogue: NonNullable<Awaited<ReturnType<typeof getBookingCatalogue>>> }) {
+  const { t, lang } = useLang();
+  const [slotDate, setSlotDate] = useState("");
+  const [slotLabel, setSlotLabel] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const today = todayIst();
+
+  const slotDays = useMemo(() => {
+    const out: { date: string; slots: string[] }[] = [];
+    for (let i = 0; i < 21 && out.length < 10; i++) {
+      const d = addDays(today, i);
+      const wins = catalogue.settings.opdHours[WEEKDAYS[dow(d)] ?? "sun"] ?? [];
+      if (wins.length === 0 || catalogue.settings.holidays.includes(d)) continue;
+      out.push({ date: d, slots: wins.map((w: [string, string]) => fmtSlot(`${w[0]}–${w[1]}`)) });
+    }
+    return out;
+  }, [catalogue, today]);
+
+  async function confirm() {
+    setBusy(true);
+    setErr("");
+    try {
+      await bookForChild({ data: { token, slotDate, slotLabel } });
+      window.location.href = `/c/${token}`;
+    } catch {
+      setErr(t.retry);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-8">
+      <h1 className="font-display text-3xl">{t.bookTitle}</h1>
+      <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+        <p className="text-sm text-muted-foreground">{t.pickSlot}</p>
+        <div className="mt-4 space-y-3">
+          {slotDays.map((d) => (
+            <div key={d.date} className="flex flex-wrap items-center gap-2">
+              <span className="w-28 text-sm font-semibold">{fmtDate(d.date, lang)}</span>
+              {d.slots.map((s) => {
+                const active = slotDate === d.date && slotLabel === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => {
+                      setSlotDate(d.date);
+                      setSlotLabel(s);
+                    }}
+                    className={cn(
+                      "min-h-10 rounded-full border px-4 text-sm font-semibold transition-colors",
+                      active ? "border-primary bg-primary text-primary-foreground" : "border-input hover:bg-secondary",
+                    )}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+        {err && <p className="mt-4 text-sm font-semibold text-overdue">{err}</p>}
+      </div>
+      <div className="mt-6 flex justify-end">
+        <button
+          type="button"
+          onClick={confirm}
+          disabled={busy || slotDate === "" || slotLabel === ""}
+          className="min-h-12 rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+        >
+          {busy ? t.loading : t.confirmBooking}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function CardScanner({ dob, lang, onRead }: { dob: string; lang: string; onRead: (d: { code: string; givenOn: string }[]) => void }) {

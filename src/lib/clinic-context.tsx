@@ -3,7 +3,7 @@ import { createContext, useContext } from "react";
 export interface ActiveClinic {
   clinicId: string;
   clinicName: string;
-  role: "doctor" | "desk";
+  role: string;
 }
 
 export const ClinicContext = createContext<ActiveClinic | null>(null);

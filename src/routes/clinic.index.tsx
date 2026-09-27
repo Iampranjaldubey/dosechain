@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getBriefing, getRiskRadar, nudgeHighRisk, getDashboard, giveBiteDose, runAutomationsNow, setDemoClock, setVisitStatus, decideBooking } from "@/lib/clinic.functions";
+import { useClinic } from "@/lib/clinic-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/clinic/")({ component: Today });
@@ -11,10 +12,11 @@ const fmt = (d: string) => new Date(d + "T00:00:00Z").toLocaleDateString("en-IN"
 
 function Today() {
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["dash"], queryFn: () => getDashboard() });
+  const { clinicId } = useClinic();
+  const { data, isLoading } = useQuery({ queryKey: ["dash", clinicId], queryFn: () => getDashboard({ data: { clinicId } }) });
   const refresh = () => qc.invalidateQueries();
   const run = useMutation({
-    mutationFn: () => runAutomationsNow(),
+    mutationFn: () => runAutomationsNow({ data: { clinicId } }),
     onSuccess: (r) => { toast.success(`Sent ${r.reminders + r.biteReminders + (r.scheduledSent ?? 0)} reminders · ${r.rescues} bite rescues`); refresh(); },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -205,10 +207,11 @@ function Stat({ label, value, strong }: { label: string; value: string | number;
 
 function Brain() {
   const qc = useQueryClient();
-  const brief = useQuery({ queryKey: ["brief"], queryFn: () => getBriefing(), staleTime: 5 * 60_000 });
-  const risk = useQuery({ queryKey: ["risk"], queryFn: () => getRiskRadar() });
+  const { clinicId } = useClinic();
+  const brief = useQuery({ queryKey: ["brief", clinicId], queryFn: () => getBriefing({ data: { clinicId } }), staleTime: 5 * 60_000 });
+  const risk = useQuery({ queryKey: ["risk", clinicId], queryFn: () => getRiskRadar({ data: { clinicId } }) });
   const nudge = useMutation({
-    mutationFn: () => nudgeHighRisk(),
+    mutationFn: () => nudgeHighRisk({ data: { clinicId } }),
     onSuccess: (r) => { toast.success(`Sent ${r.sent} WhatsApp nudges — no calls needed`); void qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
   });

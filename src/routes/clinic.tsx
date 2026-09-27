@@ -62,7 +62,7 @@ function ClinicLayout() {
   if (!me.data || me.data.memberships.length === 0) return <NoClinic email={me.data?.email ?? ""} />;
 
   const ms = me.data.memberships;
-  const active: ActiveClinic = ms.find((m) => m.clinic_id === activeId) ?? ms[0]!;
+  const active: ActiveClinic = ms.find((m) => m.clinicId === activeId) ?? ms[0]!;
   const role = active.role === "doctor" ? "Doctor" : "Desk";
 
   return (
@@ -78,7 +78,7 @@ function ClinicLayout() {
               <label className="sr-only" htmlFor="active-clinic">Clinic</label>
               <select
                 id="active-clinic"
-                value={active.clinic_id}
+                value={active.clinicId}
                 onChange={(e) => {
                   setActiveId(e.target.value);
                   try {
@@ -90,8 +90,8 @@ function ClinicLayout() {
                 className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm font-semibold"
               >
                 {ms.map((m) => (
-                  <option key={m.clinic_id} value={m.clinic_id}>
-                    {m.clinic_name}
+                  <option key={m.clinicId} value={m.clinicId}>
+                    {m.clinicName}
                   </option>
                 ))}
               </select>
@@ -166,12 +166,12 @@ function NoClinic({ email }: { email: string }) {
             <h2 className="font-display text-2xl">Join a clinic</h2>
             <ul className="mt-3 space-y-2">
               {joins.data.map((c) => (
-                <li key={c.clinic_id} className="flex items-center gap-3">
+                <li key={c.id} className="flex items-center gap-3">
                   <span className="flex-1 font-medium">
-                    {c.clinic_name} <span className="text-muted-foreground">· {c.city}</span>
+                    {c.name} <span className="text-muted-foreground">· {c.city}</span>
                   </span>
                   <button
-                    onClick={() => join.mutate(c.clinic_id)}
+                    onClick={() => join.mutate(c.id)}
                     disabled={join.isPending}
                     className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
                   >
