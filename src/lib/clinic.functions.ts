@@ -217,9 +217,11 @@ export const decideApproval = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), approve: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: isDoctor } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "doctor" });
-    if (!isDoctor) throw new Error("Only the doctor can approve plan changes.");
     const sb = context.supabase as any;
+    const { data: pc } = await sb.from("plan_changes").select("clinic_id").eq("id", data.id).single();
+    if (!pc) throw new Error("Change not found");
+    const { data: isDoctor } = await sb.rpc("is_clinic_doctor", { _clinic: pc.clinic_id });
+    if (!isDoctor) throw new Error("Only this clinic's doctor can approve plan changes.");
     if (data.approve) {
       const { applyPlanChange } = await import("./followup.server");
       await applyPlanChange(sb, data.id);
