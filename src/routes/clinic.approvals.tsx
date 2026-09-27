@@ -23,6 +23,7 @@ function Approvals() {
 
   return (
     <main className="mx-auto max-w-4xl px-5 py-8">
+      <StaffRequests />
       <h1 className="font-display text-4xl">Doctor approvals</h1>
       <p className="mt-1 text-muted-foreground">DoseChain suggests — the doctor confirms. Nothing changes for the parent until you approve.</p>
       {isLoading && <p className="mt-8 text-muted-foreground">Loading…</p>}
@@ -78,7 +79,7 @@ function Card({ p, onDecide, busy }: { p: any; onDecide?: (a: boolean) => void; 
   );
 }
 
-export function StaffRequests() {
+function StaffRequests() {
   const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: ["staffreq"], queryFn: () => listStaffRequests() });
   const act = useMutation({
