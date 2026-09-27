@@ -69,7 +69,7 @@ function Index() {
             <LangToggle />
             <Link
               to="/book"
-              className="hidden min-h-10 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md sm:inline-flex"
+              className="inline-flex min-h-10 items-center rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md sm:px-5 sm:text-sm"
             >
               {t.bookVaccine}
             </Link>
@@ -130,7 +130,7 @@ function Index() {
               className="w-full rounded-3xl border border-border shadow-xl"
             />
             {/* floating next-visit card */}
-            <div className="absolute -bottom-5 left-5 flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-lg">
+            <div className="absolute bottom-4 left-4 flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-lg sm:-bottom-5 sm:left-5">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-booked text-booked-foreground">
                 <Footprint className="h-4.5 w-4.5" />
               </span>
@@ -259,10 +259,15 @@ function Index() {
 
       {/* footer */}
       <footer className="border-t border-border">
-        <div className="mx-auto max-w-6xl px-4 py-12">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-start sm:justify-between">
           <Logo />
-          <p className="mt-5 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+          <p className="max-w-xl text-xs leading-relaxed text-muted-foreground sm:text-right">
             {t.footerDisclaimer}
+          </p>
+        </div>
+        <div className="border-t border-border/60">
+          <p className="mx-auto max-w-6xl px-4 py-4 text-center text-[11px] text-muted-foreground/70">
+            © 2026 Nanhe Kadam Child Clinic · Vijay Nagar, Indore
           </p>
         </div>
       </footer>
