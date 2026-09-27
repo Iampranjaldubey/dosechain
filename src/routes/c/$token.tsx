@@ -77,12 +77,28 @@ function ChildPage() {
 
   return (
     <Shell>
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        <p className="text-sm text-muted-foreground">{data.clinic?.clinic_name}</p>
-        <h1 className="mt-1 font-display text-3xl">{data.child.name}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t.childDob}: {fmtDate(data.child.dob, lang)}
-        </p>
+      <div className="mx-auto max-w-2xl px-4 py-10">
+        {(() => {
+          const done = data.doses.filter((d: (typeof data.doses)[number]) => d.status === "given" || d.status === "given_elsewhere").length;
+          const total = data.doses.length || 1;
+          const pct = Math.round((done / total) * 100);
+          return (
+            <div className="flex items-center gap-5">
+              <div className="relative grid h-20 w-20 shrink-0 place-items-center rounded-full" style={{ background: `conic-gradient(var(--primary) ${pct * 3.6}deg, var(--muted) 0deg)` }}>
+                <div className="grid h-16 w-16 place-items-center rounded-full bg-background">
+                  <span className="font-display text-xl">{pct}%</span>
+                </div>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-muted-foreground">{data.clinic?.clinic_name}</p>
+                <h1 className="font-display text-4xl leading-tight">{data.child.name}</h1>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {t.childDob}: {fmtDate(data.child.dob, lang)} · {done}/{data.doses.length} {lang === "hi" ? "टीके लगे" : "doses done"}
+                </p>
+              </div>
+            </div>
+          );
+        })()}
 
         {nextVisit && (
           <div className="mt-6 rounded-2xl border-2 border-primary/30 bg-secondary/60 p-5">
