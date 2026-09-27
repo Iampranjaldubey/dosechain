@@ -463,10 +463,15 @@ export const findMyChildren = createServerFn({ method: "POST" })
     if (!guardian) return { children: [] as { token: string; name: string; clinic: string }[] };
     const { data: kids } = await a
       .from("children")
-      .select("name, public_token, clinic_id, clinics(name)")
+      .select("name, public_token, clinic_id")
       .eq("guardian_id", guardian.id)
       .order("created_at");
-    const children = (kids ?? []).map((k: any) => ({ token: k.public_token as string, name: k.name as string, clinic: (k.clinics as any)?.name ?? "", clinicId: k.clinic_id as string }));
+    const clinicIds = [...new Set((kids ?? []).map((k: any) => k.clinic_id as string))];
+    const { data: clinicRows } = clinicIds.length
+      ? await a.from("clinics").select("id, name").in("id", clinicIds)
+      : { data: [] as { id: string; name: string }[] };
+    const clinicName = new Map((clinicRows ?? []).map((c: any) => [c.id as string, c.name as string]));
+    const children = (kids ?? []).map((k: any) => ({ token: k.public_token as string, name: k.name as string, clinic: clinicName.get(k.clinic_id) ?? "", clinicId: k.clinic_id as string }));
     if (children.length > 0) {
       const links = children.map((c) => `• ${c.name}: /c/${c.token}`).join("\n");
       await a.from("messages").insert({
