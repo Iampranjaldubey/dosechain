@@ -4,7 +4,7 @@ import { useLang } from "@/lib/i18n";
 import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
 import heroImg from "@/assets/hero.jpg";
-import { Mascot, MascotSays, Doodles, Wave } from "@/components/Mascot";
+import { Doodles, Sticker, Wave } from "@/components/KidVibe";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -125,7 +125,9 @@ function Index() {
           <div className="relative">
             <div className="blob-soft absolute -inset-5 -z-10 bg-secondary/70" aria-hidden />
             <div className="blob-soft absolute -right-6 -top-6 -z-10 h-24 w-24 bg-[var(--butter)] opacity-50" aria-hidden />
-            <div className="absolute -right-3 -top-10 z-10 sm:-right-8"><Mascot wave className="h-24 w-24 drop-shadow-md sm:h-28 sm:w-28" /></div>
+            <div className="absolute -right-2 -top-8 z-10 sm:-right-6 sm:-top-10">
+              <Sticker>{t.stickerHero}</Sticker>
+            </div>
             <img
               src={heroImg}
               alt="A mother carrying her baby along a trail of footprints toward Nanhe Kadam Child Clinic"
@@ -176,8 +178,8 @@ function Index() {
       {/* how it works — connected steps */}
       <section id="how" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20">
         <Reveal>
-          <h2 className="font-display text-3xl md:text-4xl">{t.howTitle}</h2>
-          <MascotSays className="mt-5">{t.mascotHow}</MascotSays>
+          <h2 className="font-display text-3xl md:text-4xl"><span className="crayon-underline">{t.howTitle}</span></h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">{t.howIntro}</p>
         </Reveal>
         <div className="relative mt-10 grid gap-8 md:grid-cols-3">
           <div className="absolute left-0 right-0 top-5 hidden border-t-2 border-dashed border-primary/25 md:block" aria-hidden />

@@ -35,6 +35,7 @@ export type Database = {
           animal: string | null
           bitten_on: string
           category: number | null
+          clinic_id: string
           created_at: string | null
           guardian_id: string | null
           id: string
@@ -50,6 +51,7 @@ export type Database = {
           animal?: string | null
           bitten_on: string
           category?: number | null
+          clinic_id?: string
           created_at?: string | null
           guardian_id?: string | null
           id?: string
@@ -65,6 +67,7 @@ export type Database = {
           animal?: string | null
           bitten_on?: string
           category?: number | null
+          clinic_id?: string
           created_at?: string | null
           guardian_id?: string | null
           id?: string
@@ -95,6 +98,7 @@ export type Database = {
       bite_doses: {
         Row: {
           bite_case_id: string | null
+          clinic_id: string
           day_offset: number | null
           due_date: string | null
           given_at: string | null
@@ -105,6 +109,7 @@ export type Database = {
         }
         Insert: {
           bite_case_id?: string | null
+          clinic_id?: string
           day_offset?: number | null
           due_date?: string | null
           given_at?: string | null
@@ -115,6 +120,7 @@ export type Database = {
         }
         Update: {
           bite_case_id?: string | null
+          clinic_id?: string
           day_offset?: number | null
           due_date?: string | null
           given_at?: string | null
@@ -144,6 +150,7 @@ export type Database = {
         Row: {
           batch_no: string | null
           child_id: string | null
+          clinic_id: string
           code: string | null
           due_date: string | null
           given_on: string | null
@@ -155,6 +162,7 @@ export type Database = {
         Insert: {
           batch_no?: string | null
           child_id?: string | null
+          clinic_id?: string
           code?: string | null
           due_date?: string | null
           given_on?: string | null
@@ -166,6 +174,7 @@ export type Database = {
         Update: {
           batch_no?: string | null
           child_id?: string | null
+          clinic_id?: string
           code?: string | null
           due_date?: string | null
           given_on?: string | null
@@ -193,6 +202,7 @@ export type Database = {
       }
       children: {
         Row: {
+          clinic_id: string
           created_at: string | null
           dob: string
           guardian_id: string | null
@@ -202,6 +212,7 @@ export type Database = {
           sex: string | null
         }
         Insert: {
+          clinic_id?: string
           created_at?: string | null
           dob: string
           guardian_id?: string | null
@@ -211,6 +222,7 @@ export type Database = {
           sex?: string | null
         }
         Update: {
+          clinic_id?: string
           created_at?: string | null
           dob?: string
           guardian_id?: string | null
@@ -233,7 +245,9 @@ export type Database = {
         Row: {
           auto_approve_bite_rebook: boolean | null
           bite_windows: Json
+          capacity: Json | null
           city: string | null
+          clinic_id: string
           clinic_name: string | null
           doctor_name: string | null
           hepa_type: string | null
@@ -251,7 +265,9 @@ export type Database = {
         Insert: {
           auto_approve_bite_rebook?: boolean | null
           bite_windows: Json
+          capacity?: Json | null
           city?: string | null
+          clinic_id: string
           clinic_name?: string | null
           doctor_name?: string | null
           hepa_type?: string | null
@@ -269,7 +285,9 @@ export type Database = {
         Update: {
           auto_approve_bite_rebook?: boolean | null
           bite_windows?: Json
+          capacity?: Json | null
           city?: string | null
+          clinic_id?: string
           clinic_name?: string | null
           doctor_name?: string | null
           hepa_type?: string | null
@@ -284,10 +302,43 @@ export type Database = {
           rota_brand?: string | null
           vial_life_hours?: number | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_settings_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinics: {
+        Row: {
+          city: string | null
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+        }
         Relationships: []
       }
       guardians: {
         Row: {
+          clinic_id: string
           created_at: string | null
           id: string
           lang: string | null
@@ -295,6 +346,7 @@ export type Database = {
           phone: string
         }
         Insert: {
+          clinic_id?: string
           created_at?: string | null
           id?: string
           lang?: string | null
@@ -302,6 +354,7 @@ export type Database = {
           phone: string
         }
         Update: {
+          clinic_id?: string
           created_at?: string | null
           id?: string
           lang?: string | null
@@ -312,18 +365,21 @@ export type Database = {
       }
       impact_events: {
         Row: {
+          clinic_id: string
           created_at: string | null
           id: string
           kind: string | null
           minutes_saved: number | null
         }
         Insert: {
+          clinic_id?: string
           created_at?: string | null
           id?: string
           kind?: string | null
           minutes_saved?: number | null
         }
         Update: {
+          clinic_id?: string
           created_at?: string | null
           id?: string
           kind?: string | null
@@ -336,6 +392,7 @@ export type Database = {
           audio_url: string | null
           body_en: string | null
           body_hi: string | null
+          clinic_id: string
           created_at: string | null
           direction: string | null
           draft_reply: Json | null
@@ -353,6 +410,7 @@ export type Database = {
           audio_url?: string | null
           body_en?: string | null
           body_hi?: string | null
+          clinic_id?: string
           created_at?: string | null
           direction?: string | null
           draft_reply?: Json | null
@@ -370,6 +428,7 @@ export type Database = {
           audio_url?: string | null
           body_en?: string | null
           body_hi?: string | null
+          clinic_id?: string
           created_at?: string | null
           direction?: string | null
           draft_reply?: Json | null
@@ -396,6 +455,7 @@ export type Database = {
       payments: {
         Row: {
           amount_inr: number
+          clinic_id: string
           created_at: string | null
           id: string
           method: string | null
@@ -404,6 +464,7 @@ export type Database = {
         }
         Insert: {
           amount_inr: number
+          clinic_id?: string
           created_at?: string | null
           id?: string
           method?: string | null
@@ -412,6 +473,7 @@ export type Database = {
         }
         Update: {
           amount_inr?: number
+          clinic_id?: string
           created_at?: string | null
           id?: string
           method?: string | null
@@ -432,6 +494,7 @@ export type Database = {
         Row: {
           bite_case_id: string | null
           child_id: string | null
+          clinic_id: string
           created_at: string | null
           decided_at: string | null
           diff: Json
@@ -443,6 +506,7 @@ export type Database = {
         Insert: {
           bite_case_id?: string | null
           child_id?: string | null
+          clinic_id?: string
           created_at?: string | null
           decided_at?: string | null
           diff: Json
@@ -454,6 +518,7 @@ export type Database = {
         Update: {
           bite_case_id?: string | null
           child_id?: string | null
+          clinic_id?: string
           created_at?: string | null
           decided_at?: string | null
           diff?: Json
@@ -508,36 +573,50 @@ export type Database = {
       }
       staff_requests: {
         Row: {
+          clinic_id: string
           created_at: string
           email: string | null
           user_id: string
         }
         Insert: {
+          clinic_id: string
           created_at?: string
           email?: string | null
           user_id: string
         }
         Update: {
+          clinic_id?: string
           created_at?: string
           email?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "staff_requests_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stock: {
         Row: {
+          clinic_id: string
           name: string | null
           on_hand: number | null
           reorder_level: number | null
           sku: string
         }
         Insert: {
+          clinic_id?: string
           name?: string | null
           on_hand?: number | null
           reorder_level?: number | null
           sku: string
         }
         Update: {
+          clinic_id?: string
           name?: string | null
           on_hand?: number | null
           reorder_level?: number | null
@@ -547,21 +626,32 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          clinic_id: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
+          clinic_id: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
+          clinic_id?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vaccine_doses: {
         Row: {
@@ -608,6 +698,7 @@ export type Database = {
       vials: {
         Row: {
           batch_no: string | null
+          clinic_id: string
           expires_at: string
           id: string
           opened_at: string
@@ -616,6 +707,7 @@ export type Database = {
         }
         Insert: {
           batch_no?: string | null
+          clinic_id?: string
           expires_at: string
           id?: string
           opened_at: string
@@ -624,6 +716,7 @@ export type Database = {
         }
         Update: {
           batch_no?: string | null
+          clinic_id?: string
           expires_at?: string
           id?: string
           opened_at?: string
@@ -637,6 +730,7 @@ export type Database = {
           bite_case_id: string | null
           checked_in_at: string | null
           child_id: string | null
+          clinic_id: string
           created_at: string | null
           day: string
           fee_inr: number | null
@@ -651,6 +745,7 @@ export type Database = {
           bite_case_id?: string | null
           checked_in_at?: string | null
           child_id?: string | null
+          clinic_id?: string
           created_at?: string | null
           day: string
           fee_inr?: number | null
@@ -665,6 +760,7 @@ export type Database = {
           bite_case_id?: string | null
           checked_in_at?: string | null
           child_id?: string | null
+          clinic_id?: string
           created_at?: string | null
           day?: string
           fee_inr?: number | null
@@ -691,18 +787,17 @@ export type Database = {
     }
     Functions: {
       approve_staff: {
-        Args: { _approve: boolean; _user_id: string }
+        Args: { _approve: boolean; _clinic: string; _user_id: string }
         Returns: undefined
       }
-      claim_doctor_if_none: { Args: never; Returns: boolean }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
+      create_clinic: {
+        Args: { _city: string; _name: string; _phone: string }
+        Returns: string
       }
-      is_staff: { Args: { _uid: string }; Returns: boolean }
+      is_any_staff: { Args: never; Returns: boolean }
+      is_clinic_doctor: { Args: { _clinic: string }; Returns: boolean }
+      is_staff_of: { Args: { _clinic: string }; Returns: boolean }
+      request_join_clinic: { Args: { _clinic: string }; Returns: undefined }
     }
     Enums: {
       app_role: "doctor" | "desk"

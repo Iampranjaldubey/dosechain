@@ -98,9 +98,6 @@
   /* gentle kid-vibe accents (used sparingly, never for status) */
   --blush: oklch(0.86 0.07 20);
   --butter: oklch(0.88 0.11 88);
-  --mascot-body: oklch(0.86 0.035 230);
-  --mascot-ear: oklch(0.80 0.045 230);
-  --mascot-line: oklch(0.32 0.03 230);
 }
 
 .dark {
@@ -173,24 +170,26 @@
   animation: drift 6s ease-in-out infinite;
 }
 /* kid-vibe motion: slow, soft, never bouncy-loud */
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+@keyframes wiggle {
+  0%, 100% { transform: rotate(6deg); }
+  50% { transform: rotate(2deg); }
 }
 @keyframes floaty {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-10px) rotate(6deg); }
 }
-@keyframes wave-hand {
-  0%, 60%, 100% { transform: rotate(0deg); }
-  70% { transform: rotate(-18deg); }
-  85% { transform: rotate(10deg); }
-}
-.mascot-bob { animation: bob 4s ease-in-out infinite; }
-.mascot-wave { animation: wave-hand 3.5s ease-in-out infinite; }
+.sticker-wiggle { animation: wiggle 5s ease-in-out infinite; }
 .doodle-float { animation: floaty 9s ease-in-out infinite; }
+/* hand-drawn crayon underline for section titles */
+.crayon-underline {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 Q 15 2 30 7 T 60 7 T 90 7 T 118 6' fill='none' stroke='%23F2B544' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0.3em;
+  padding-bottom: 0.12em;
+}
 .blob-soft { border-radius: 42% 58% 55% 45% / 48% 42% 58% 52%; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; }
-  .reveal.is-visible, .footprint-drift, .mascot-bob, .mascot-wave, .doodle-float { animation: none; }
+  .reveal.is-visible, .footprint-drift, .sticker-wiggle, .doodle-float { animation: none; }
 }

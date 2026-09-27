@@ -22,3 +22,7 @@
 
 - [x] Reminder sweep: scheduled messages for every booked appointment, dashboard counts update
 - [x] E2E: sign up, confirm booking on Today, check parent child timeline
+
+## New requests (2026-09-27)
+- [ ] Parent onboarding page: create first child, then walk booking wizard end to end
+- [ ] Multi-clinic admin panel: staff roles so each clinic has its own dashboard and capacity data
