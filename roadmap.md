@@ -7,3 +7,4 @@
 - [ ] 5. Follow-through: /wa/:token WhatsApp sim, templates EN/HI, run-automations + demo clock, AI parse-reply, /clinic/approvals
 - [ ] 6. Clinic + bite lane: triage, vials, watchdog, Today, recall, child profile, messages, settings, impact card
 - [ ] 7. Demo stage /demo + polish, acceptance checks, publish
+- [ ] Theme decision: user wants to co-decide frontend theme (palette, fonts, layout energy) via questions before screens are built
