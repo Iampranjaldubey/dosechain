@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BookRouteImport } from './routes/book'
+import { Route as ApiCapacityAnalysisRouteImport } from './routes/api/capacity-analysis'
 import { Route as BTokenRouteImport } from './routes/b/$token'
 import { Route as CTokenRouteImport } from './routes/c/$token'
+import { Route as ClinicCapacityRouteImport } from './routes/clinic.capacity'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const BookRoute = BookRouteImport.update({
   id: '/book',
   path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCapacityAnalysisRoute = ApiCapacityAnalysisRouteImport.update({
+  id: '/api/capacity-analysis',
+  path: '/api/capacity-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BTokenRoute = BTokenRouteImport.update({
@@ -34,39 +41,71 @@ const CTokenRoute = CTokenRouteImport.update({
   path: '/c/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClinicCapacityRoute = ClinicCapacityRouteImport.update({
+  id: '/clinic/capacity',
+  path: '/clinic/capacity',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
+  '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/clinic/capacity': typeof ClinicCapacityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
+  '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/clinic/capacity': typeof ClinicCapacityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/book': typeof BookRoute
+  '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/clinic/capacity': typeof ClinicCapacityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/book' | '/b/$token' | '/c/$token'
+  fullPaths:
+    | '/'
+    | '/book'
+    | '/api/capacity-analysis'
+    | '/b/$token'
+    | '/c/$token'
+    | '/clinic/capacity'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/book' | '/b/$token' | '/c/$token'
-  id: '__root__' | '/' | '/book' | '/b/$token' | '/c/$token'
+  to:
+    | '/'
+    | '/book'
+    | '/api/capacity-analysis'
+    | '/b/$token'
+    | '/c/$token'
+    | '/clinic/capacity'
+  id:
+    | '__root__'
+    | '/'
+    | '/book'
+    | '/api/capacity-analysis'
+    | '/b/$token'
+    | '/c/$token'
+    | '/clinic/capacity'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookRoute: typeof BookRoute
+  ApiCapacityAnalysisRoute: typeof ApiCapacityAnalysisRoute
   BTokenRoute: typeof BTokenRoute
   CTokenRoute: typeof CTokenRoute
+  ClinicCapacityRoute: typeof ClinicCapacityRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,6 +124,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/capacity-analysis': {
+      id: '/api/capacity-analysis'
+      path: '/api/capacity-analysis'
+      fullPath: '/api/capacity-analysis'
+      preLoaderRoute: typeof ApiCapacityAnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/b/$token': {
       id: '/b/$token'
       path: '/b/$token'
@@ -99,14 +145,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clinic/capacity': {
+      id: '/clinic/capacity'
+      path: '/clinic/capacity'
+      fullPath: '/clinic/capacity'
+      preLoaderRoute: typeof ClinicCapacityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookRoute: BookRoute,
+  ApiCapacityAnalysisRoute: ApiCapacityAnalysisRoute,
   BTokenRoute: BTokenRoute,
   CTokenRoute: CTokenRoute,
+  ClinicCapacityRoute: ClinicCapacityRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
