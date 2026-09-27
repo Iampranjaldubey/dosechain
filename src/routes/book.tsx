@@ -88,7 +88,7 @@ function BookPage() {
     return buildPlan(
       dob,
       history.map((h) => ({ code: h.code, givenOn: h.givenOn }) satisfies GivenDose),
-      data.catalogue.map((d) => ({
+      data.catalogue.map((d: (typeof data.catalogue)[number]) => ({
         code: d.code,
         series: d.series,
         recAgeD: d.recAgeD,

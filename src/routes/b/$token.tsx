@@ -93,7 +93,7 @@ function BitePage() {
                 <span
                   className={cn(
                     "flex h-10 w-10 items-center justify-center rounded-full",
-                    statusStyle[d.status] ?? statusStyle.planned,
+                    statusStyle[d.status] ?? statusStyle["planned"],
                   )}
                 >
                   <Footprint flip={i % 2 === 1} className="h-5 w-5" />

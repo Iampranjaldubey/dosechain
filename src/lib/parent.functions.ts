@@ -307,7 +307,7 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
       regimen: regimen
         ? { code: regimen.code, labelEn: regimen.label_en, labelHi: regimen.label_hi, route: regimen.route }
         : null,
-      doses: (doses ?? []).map((d) => ({
+      doses: ((doses ?? []) as { day_offset: number; due_date: string | null; status: string; given_at: string | null }[]).map((d) => ({
         offset: d.day_offset,
         dueDate: d.due_date,
         status: d.status,
