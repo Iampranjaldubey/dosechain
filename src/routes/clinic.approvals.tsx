@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { decideApproval, listApprovals } from "@/lib/clinic.functions";
-import { listStaffRequests, approveStaff } from "@/lib/clinic.functions";
+import { decideApproval, listApprovals, listStaffRequests, approveStaff, listClinicStaff } from "@/lib/clinic.functions";
+import { useClinic } from "@/lib/clinic-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/clinic/approvals")({ component: Approvals });
@@ -81,25 +81,43 @@ function Card({ p, onDecide, busy }: { p: any; onDecide?: (a: boolean) => void; 
 
 function StaffRequests() {
   const qc = useQueryClient();
+  const { clinicId } = useClinic();
   const { data = [] } = useQuery({ queryKey: ["staffreq"], queryFn: () => listStaffRequests() });
+  const staff = useQuery({ queryKey: ["staff", clinicId], queryFn: () => listClinicStaff({ data: { clinicId } }) });
   const act = useMutation({
-    mutationFn: (v: { userId: string; approve: boolean }) => approveStaff({ data: v }),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["staffreq"] }),
+    mutationFn: (v: { userId: string; approve: boolean }) => approveStaff({ data: { clinicId, ...v } }),
+    onSuccess: () => void qc.invalidateQueries(),
     onError: (e: Error) => toast.error(e.message),
   });
-  if (!data.length) return null;
   return (
-    <section className="mb-8 rounded-3xl border border-accent bg-accent/10 p-6">
-      <h2 className="font-display text-2xl">Staff asking for access</h2>
-      <ul className="mt-3 space-y-2">
-        {data.map((r) => (
-          <li key={r.user_id} className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="flex-1 font-medium">{r.email ?? r.user_id}</span>
-            <button onClick={() => act.mutate({ userId: r.user_id, approve: true })} className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Approve as desk</button>
-            <button onClick={() => act.mutate({ userId: r.user_id, approve: false })} className="rounded-full border border-border px-3 py-1 text-xs">Decline</button>
-          </li>
-        ))}
-      </ul>
+    <section className="mb-8 space-y-4">
+      {staff.data && staff.data.length > 0 && (
+        <div className="rounded-3xl border border-border bg-card p-6">
+          <h2 className="font-display text-2xl">Clinic staff</h2>
+          <ul className="mt-3 space-y-1 text-sm">
+            {staff.data.map((s) => (
+              <li key={s.user_id} className="flex items-center gap-3">
+                <span className="flex-1">{s.email ?? s.user_id}</span>
+                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{s.role}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {data.length > 0 && (
+        <div className="rounded-3xl border border-accent bg-accent/10 p-6">
+          <h2 className="font-display text-2xl">Staff asking for access</h2>
+          <ul className="mt-3 space-y-2">
+            {data.map((r) => (
+              <li key={r.user_id} className="flex flex-wrap items-center gap-3 text-sm">
+                <span className="flex-1 font-medium">{r.email ?? r.user_id}</span>
+                <button onClick={() => act.mutate({ userId: r.user_id, approve: true })} className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Approve as desk</button>
+                <button onClick={() => act.mutate({ userId: r.user_id, approve: false })} className="rounded-full border border-border px-3 py-1 text-xs">Decline</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }

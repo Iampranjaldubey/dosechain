@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useClinic } from "@/lib/clinic-context";
+import { getClinicSettings, saveCapacity } from "@/lib/clinic.functions";
 
 export const Route = createFileRoute("/clinic/capacity")({
   head: () => ({
@@ -44,6 +48,8 @@ const LABEL: Record<string, string> = {
 };
 
 function CapacityPage() {
+  const { clinicId, clinicName } = useClinic();
+  const qc = useQueryClient();
   const [rows, setRows] = useState<Row[]>(SEED);
   const [peakNotes, setPeak] = useState("Saturday mornings overflow; Monday evenings busy after school.");
   const [constraints, setCons] = useState("Only 2 vaccinators on payroll; Sunday reserved for bite cases.");
@@ -51,6 +57,26 @@ function CapacityPage() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const ctrl = useRef<AbortController | null>(null);
+  const hydrated = useRef(false);
+
+  const settings = useQuery({ queryKey: ["cap", clinicId], queryFn: () => getClinicSettings({ data: { clinicId } }) });
+  useEffect(() => {
+    const cap = settings.data?.capacity as { rows?: Row[]; peakNotes?: string; constraints?: string } | null | undefined;
+    if (!cap || hydrated.current) return;
+    hydrated.current = true;
+    if (cap.rows?.length) setRows(cap.rows);
+    if (cap.peakNotes) setPeak(cap.peakNotes);
+    if (cap.constraints) setCons(cap.constraints);
+  }, [settings.data]);
+
+  const save = useMutation({
+    mutationFn: () => saveCapacity({ data: { clinicId, capacity: { rows, peakNotes, constraints } } }),
+    onSuccess: () => {
+      toast.success("Saved for this clinic");
+      void qc.invalidateQueries({ queryKey: ["cap", clinicId] });
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
 
   const set = (i: number, k: keyof Row, v: string | boolean) =>
     setRows((r) => r.map((x, j) => (j === i ? { ...x, [k]: typeof v === "string" && NUM.includes(k) ? Number(v) || 0 : v } : x)));
@@ -83,7 +109,7 @@ function CapacityPage() {
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-6xl px-5 py-10">
         <h1 className="font-display text-4xl text-foreground">Find your scheduling bottlenecks</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">Enter a typical week's hours and demand. AI compares capacity with demand and suggests practical changes. Suggestions only — you decide.</p>
+        <p className="mt-2 max-w-2xl text-muted-foreground">Enter a typical week's hours and demand for {clinicName}. AI compares capacity with demand and suggests practical changes. Suggestions only — you decide.</p>
 
         <div className="mt-8 overflow-x-auto rounded-2xl border border-border bg-card">
           <table className="w-full text-sm">
@@ -124,9 +150,12 @@ function CapacityPage() {
           </label>
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <button onClick={analyse} disabled={busy} className="rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground disabled:opacity-60">
             {busy ? "Analysing…" : "Analyse with AI"}
+          </button>
+          <button onClick={() => save.mutate()} disabled={save.isPending} className="rounded-full border border-border px-6 py-3 disabled:opacity-60">
+            {save.isPending ? "Saving…" : "Save week"}
           </button>
           {busy && <button onClick={() => ctrl.current?.abort()} className="rounded-full border border-border px-6 py-3">Stop</button>}
         </div>
