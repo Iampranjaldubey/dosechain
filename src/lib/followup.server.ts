@@ -257,7 +257,7 @@ Return ONLY JSON {"en":"...","hi":"..."} where hi is natural Hindi in Devanagari
   return { parsed };
 }
 
-async function proposeChildMove(a: Db, child: any, visit: any, requested: string | null, today: string, defaultShift: number) {
+export async function proposeChildMove(a: Db, child: any, visit: any, requested: string | null, today: string, defaultShift: number) {
   const { eng } = await loadSettings(a, child.clinic_id);
   const [{ data: cat }, { data: doses }] = await Promise.all([
     a.from("vaccine_doses").select("*").order("sort"),
