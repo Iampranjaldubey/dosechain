@@ -55,7 +55,7 @@ export function rescheduleMissedDose(
   windows: BiteWindows,
   holidays: ISODate[],
 ): BiteDosePlan[] {
-  const missed = doses[missedIndex];
+  const missed = doses[missedIndex]!;
   let newDate = today < missed.date ? missed.date : today;
   while ((windows[dow(newDate)] ?? []).length === 0 || holidays.includes(newDate)) {
     newDate = addDays(newDate, 1);
