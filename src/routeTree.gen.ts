@@ -26,6 +26,8 @@ import { Route as ClinicMessagesRouteImport } from './routes/clinic.messages'
 import { Route as ClinicRecallRouteImport } from './routes/clinic.recall'
 import { Route as ClinicSettingsRouteImport } from './routes/clinic.settings'
 import { Route as FTokenRouteImport } from './routes/f.$token'
+import { Route as HTokenRouteImport } from './routes/h.$token'
+import { Route as PShareTokenRouteImport } from './routes/p.$shareToken'
 import { Route as VerifyTokenRouteImport } from './routes/verify.$token'
 import { Route as WaTokenRouteImport } from './routes/wa.$token'
 
@@ -114,6 +116,16 @@ const FTokenRoute = FTokenRouteImport.update({
   path: '/f/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HTokenRoute = HTokenRouteImport.update({
+  id: '/h/$token',
+  path: '/h/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PShareTokenRoute = PShareTokenRouteImport.update({
+  id: '/p/$shareToken',
+  path: '/p/$shareToken',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyTokenRoute = VerifyTokenRouteImport.update({
   id: '/verify/$token',
   path: '/verify/$token',
@@ -142,6 +154,8 @@ export interface FileRoutesByFullPath {
   '/clinic/recall': typeof ClinicRecallRoute
   '/clinic/settings': typeof ClinicSettingsRoute
   '/f/$token': typeof FTokenRoute
+  '/h/$token': typeof HTokenRoute
+  '/p/$shareToken': typeof PShareTokenRoute
   '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
   '/clinic/': typeof ClinicIndexRoute
@@ -162,6 +176,8 @@ export interface FileRoutesByTo {
   '/clinic/recall': typeof ClinicRecallRoute
   '/clinic/settings': typeof ClinicSettingsRoute
   '/f/$token': typeof FTokenRoute
+  '/h/$token': typeof HTokenRoute
+  '/p/$shareToken': typeof PShareTokenRoute
   '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
   '/clinic': typeof ClinicIndexRoute
@@ -184,6 +200,8 @@ export interface FileRoutesById {
   '/clinic/recall': typeof ClinicRecallRoute
   '/clinic/settings': typeof ClinicSettingsRoute
   '/f/$token': typeof FTokenRoute
+  '/h/$token': typeof HTokenRoute
+  '/p/$shareToken': typeof PShareTokenRoute
   '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
   '/clinic/': typeof ClinicIndexRoute
@@ -207,6 +225,8 @@ export interface FileRouteTypes {
     | '/clinic/recall'
     | '/clinic/settings'
     | '/f/$token'
+    | '/h/$token'
+    | '/p/$shareToken'
     | '/verify/$token'
     | '/wa/$token'
     | '/clinic/'
@@ -227,6 +247,8 @@ export interface FileRouteTypes {
     | '/clinic/recall'
     | '/clinic/settings'
     | '/f/$token'
+    | '/h/$token'
+    | '/p/$shareToken'
     | '/verify/$token'
     | '/wa/$token'
     | '/clinic'
@@ -248,6 +270,8 @@ export interface FileRouteTypes {
     | '/clinic/recall'
     | '/clinic/settings'
     | '/f/$token'
+    | '/h/$token'
+    | '/p/$shareToken'
     | '/verify/$token'
     | '/wa/$token'
     | '/clinic/'
@@ -265,6 +289,8 @@ export interface RootRouteChildren {
   CTokenRoute: typeof CTokenRoute
   CertTokenRoute: typeof CertTokenRoute
   FTokenRoute: typeof FTokenRoute
+  HTokenRoute: typeof HTokenRoute
+  PShareTokenRoute: typeof PShareTokenRoute
   VerifyTokenRoute: typeof VerifyTokenRoute
   WaTokenRoute: typeof WaTokenRoute
 }
@@ -390,6 +416,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/h/$token': {
+      id: '/h/$token'
+      path: '/h/$token'
+      fullPath: '/h/$token'
+      preLoaderRoute: typeof HTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$shareToken': {
+      id: '/p/$shareToken'
+      path: '/p/$shareToken'
+      fullPath: '/p/$shareToken'
+      preLoaderRoute: typeof PShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/$token': {
       id: '/verify/$token'
       path: '/verify/$token'
@@ -440,6 +480,8 @@ const rootRouteChildren: RootRouteChildren = {
   CTokenRoute: CTokenRoute,
   CertTokenRoute: CertTokenRoute,
   FTokenRoute: FTokenRoute,
+  HTokenRoute: HTokenRoute,
+  PShareTokenRoute: PShareTokenRoute,
   VerifyTokenRoute: VerifyTokenRoute,
   WaTokenRoute: WaTokenRoute,
 }
