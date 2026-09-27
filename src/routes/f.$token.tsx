@@ -1,3 +1,4 @@
+import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -36,9 +37,8 @@ function Family() {
   const together = days.length > 1 && Math.abs(Date.parse(days[0]!) - Date.parse(days[days.length - 1]!)) <= 21 * 864e5;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4"><Link to="/"><Logo /></Link><LangToggle /></header>
-      <main className="mx-auto max-w-2xl px-4 pb-16">
+    <ParentShell eyebrow="Family">
+      <div className="mx-auto max-w-2xl px-4 pb-16 pt-8">
         {isLoading && <p className="py-16 text-center text-muted-foreground">…</p>}
         {!isLoading && !data && <p className="py-16 text-center text-muted-foreground">Link not found.</p>}
         {data && (
@@ -83,7 +83,7 @@ function Family() {
             </div>
           </>
         )}
-      </main>
+      </div>
 
       {paying && (
         <div className="fixed inset-0 z-50 grid place-items-end bg-foreground/40 sm:place-items-center" role="dialog" aria-label="UPI payment">
@@ -111,6 +111,6 @@ function Family() {
           </div>
         </div>
       )}
-    </div>
+    </ParentShell>
   );
 }

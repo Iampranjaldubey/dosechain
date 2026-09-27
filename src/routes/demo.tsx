@@ -34,7 +34,7 @@ function Demo() {
         </div>
       </header>
       <main className="mx-auto grid max-w-7xl gap-8 px-5 py-8 lg:grid-cols-[1fr_400px]">
-        <section>
+        <section className="min-w-0">
           <h1 className="font-display text-4xl sm:text-5xl">The whole story, in one take</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">Keep the clinic desk open in another tab, signed in as the doctor. Follow the steps; the parent phone updates live.</p>
           <ol className="mt-8 space-y-4">
@@ -50,7 +50,7 @@ function Demo() {
             ))}
           </ol>
         </section>
-        <aside className="lg:sticky lg:top-6 lg:self-start">
+        <aside className="mx-auto w-full min-w-0 max-w-[400px] lg:sticky lg:top-6 lg:self-start">
           <p className="mb-2 text-center text-sm font-semibold text-muted-foreground">Aarav's parent · phone</p>
           <div className="overflow-hidden rounded-[2.5rem] border-[10px] border-foreground shadow-2xl">
             <iframe title="Parent phone" src="/wa/demo-aarav" className="h-[720px] w-full bg-background" />

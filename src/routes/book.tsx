@@ -1,3 +1,4 @@
+import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -461,17 +462,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link to="/" aria-label="DoseChain home">
-          <Logo />
-        </Link>
-        <LangToggle />
-      </header>
-      {children}
-    </div>
-  );
+  const hi = useLang().lang === "hi";
+  return <ParentShell eyebrow={hi?"बुकिंग":"Booking"}>{children}</ParentShell>;
 }
 
 function CardScanner({ dob, lang, onRead }: { dob: string; lang: string; onRead: (d: { code: string; givenOn: string }[]) => void }) {
