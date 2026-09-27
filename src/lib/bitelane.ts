@@ -20,7 +20,7 @@ export interface BiteDosePlan {
   date: ISODate;
   /** null for day 0 (immediate walk-in) */
   window: [string, string] | null;
-  flag?: "extra_window_needed";
+  flag?: "extra_window_needed" | undefined;
 }
 
 export function planBiteCourse(
@@ -39,7 +39,7 @@ export function planBiteCourse(
       return { offset: off, date, window: null, flag: "extra_window_needed" as const };
     }
     const win = prefer === "evening" ? dayWins[dayWins.length - 1] : dayWins[0];
-    return { offset: off, date, window: win };
+    return { offset: off, date, window: win ?? null };
   });
 }
 
@@ -55,7 +55,7 @@ export function rescheduleMissedDose(
   windows: BiteWindows,
   holidays: ISODate[],
 ): BiteDosePlan[] {
-  const missed = doses[missedIndex];
+  const missed = doses[missedIndex]!;
   let newDate = today < missed.date ? missed.date : today;
   while ((windows[dow(newDate)] ?? []).length === 0 || holidays.includes(newDate)) {
     newDate = addDays(newDate, 1);
@@ -66,7 +66,7 @@ export function rescheduleMissedDose(
     const date = addDays(d.date, shift);
     const dayWins = windows[dow(date)] ?? [];
     const window: [string, string] | null =
-      d.offset === 0 ? null : dayWins.length > 0 ? dayWins[0] : null;
+      d.offset === 0 ? null : (dayWins[0] ?? null);
     return {
       ...d,
       date,

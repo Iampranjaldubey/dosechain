@@ -8,3 +8,6 @@
 - [ ] 6. Clinic + bite lane: triage, vials, watchdog, Today, recall, child profile, messages, settings, impact card
 - [ ] 7. Demo stage /demo + polish, acceptance checks, publish
 - [ ] Theme decision: user wants to co-decide frontend theme (palette, fonts, layout energy) via questions before screens are built
+
+## UX overhaul (user feedback Sep 27)
+- [x] Landing page feels basic/generic — do UX engineering: real-website feel, richer sections, motion, hierarchy (keep locked Fresh Mint theme + fonts)

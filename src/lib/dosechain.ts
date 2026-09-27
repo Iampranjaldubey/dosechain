@@ -112,7 +112,7 @@ export function buildPlan(
   for (const h of history) {
     const def = defByCode.get(h.code);
     if (!def) continue;
-    if (!seriesLast[def.series] || seriesLast[def.series] < h.givenOn)
+    if (!seriesLast[def.series] || (seriesLast[def.series] ?? "") < h.givenOn)
       seriesLast[def.series] = h.givenOn;
     if (def.isLive) liveDates.push(h.givenOn);
   }
@@ -136,7 +136,7 @@ export function buildPlan(
       const gapOk =
         d.minGapPrevD == null ||
         !seriesLast[d.series] ||
-        diffDays(last.date, seriesLast[d.series]) >= d.minGapPrevD;
+        diffDays(last.date, seriesLast[d.series]!) >= d.minGapPrevD;
       const liveOk = !d.isLive || liveOkAt(last.date, liveDates);
       if (e <= last.date && target <= addDays(last.date, 14) && gapOk && liveOk) {
         last.doses.push(d.code);
@@ -156,7 +156,7 @@ export function buildPlan(
   }
 
   if (visits.length > 0) {
-    visits[0].status = visits[0].date <= today ? "due" : "bookable";
+    visits[0]!.status = visits[0]!.date <= today ? "due" : "bookable";
   }
   for (const v of visits) {
     if (diffDays(v.date, today) < -30) v.flags.push("overdue_30d");
@@ -164,7 +164,7 @@ export function buildPlan(
   const rota1 = visits.find((v) => v.doses.includes("ROTA1"));
   if (rota1 && diffDays(rota1.date, dob) > 105) rota1.flags.push("rota_age_limit");
   const overdueCount = visits.filter((v) => v.date < today).length;
-  if (overdueCount > 1) visits[0].flags.push("catchup_needed");
+  if (overdueCount > 1) visits[0]!.flags.push("catchup_needed");
 
   return visits;
 }
@@ -192,18 +192,18 @@ export function reshuffle(
 ): ReshuffleResult {
   const fixedHistory: GivenDose[] = [...history];
   for (let i = 0; i < visitIndex; i++) {
-    for (const code of visits[i].doses)
-      fixedHistory.push({ code, givenOn: visits[i].date });
+    for (const code of visits[i]!.doses)
+      fixedHistory.push({ code, givenOn: visits[i]!.date });
   }
 
   const defByCode = new Map(catalogue.map((d) => [d.code, d]));
-  const movedDoses = visits[visitIndex].doses;
+  const movedDoses = visits[visitIndex]!.doses;
 
   // Earliest allowed date for the moved visit, given fixed earlier visits.
   const seriesLast: Record<string, ISODate> = {};
   for (const h of fixedHistory) {
     const def = defByCode.get(h.code);
-    if (def && (!seriesLast[def.series] || seriesLast[def.series] < h.givenOn))
+    if (def && (!seriesLast[def.series] || (seriesLast[def.series] ?? "") < h.givenOn))
       seriesLast[def.series] = h.givenOn;
   }
   let movedDate = requestedDate;

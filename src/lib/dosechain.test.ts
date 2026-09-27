@@ -84,7 +84,7 @@ describe("dosechain engine", () => {
     const tenWeekIdx = plan.findIndex((v) => v.doses.includes("DTP2"));
     const fluBefore = plan.find((v) => v.doses.includes("FLU1"))!.date;
 
-    const res = reshuffle(dob, history, plan, tenWeekIdx, addDays(plan[tenWeekIdx].date, 7), CAT, SETTINGS, today);
+    const res = reshuffle(dob, history, plan, tenWeekIdx, addDays(plan[tenWeekIdx]!.date, 7), CAT, SETTINGS, today);
     const visitOf = (code: string) => res.visits.find((v) => v.doses.includes(code))!;
     expect(diffDays(visitOf("DTP3").date, visitOf("DTP2").date)).toBeGreaterThanOrEqual(28);
     expect(visitOf("FLU1").date).toBe(fluBefore);
@@ -127,10 +127,10 @@ describe("dosechain engine", () => {
       givenOn: givenOn(dob, d.recAgeD),
     }));
     const plan = buildPlan(dob, history, CAT, SETTINGS, "2026-09-27");
-    expect(plan[0].doses).toContain("DTP2");
-    expect(plan[0].doses).not.toContain("DTP1");
-    expect(plan[0].date).toBe("2026-10-24"); // dob+70, ≥28d after 6w visit
-    expect(plan[0].status).toBe("bookable");
+    expect(plan[0]!.doses).toContain("DTP2");
+    expect(plan[0]!.doses).not.toContain("DTP1");
+    expect(plan[0]!.date).toBe("2026-10-24"); // dob+70, ≥28d after 6w visit
+    expect(plan[0]!.status).toBe("bookable");
   });
 });
 
@@ -153,21 +153,21 @@ describe("bite lane engine", () => {
       "2026-10-04",
       "2026-10-25",
     ]);
-    expect(doses[0].window).toBeNull(); // day 0 is immediate
-    expect(doses[2].window).toEqual(["10:00", "11:00"]); // Sunday window
-    expect(doses[3].window).toEqual(["10:00", "11:00"]); // Sunday window
-    expect(doses[1].window).toEqual(["10:00", "10:45"]); // Wednesday morning
+    expect(doses[0]!.window).toBeNull(); // day 0 is immediate
+    expect(doses[2]!.window).toEqual(["10:00", "11:00"]); // Sunday window
+    expect(doses[3]!.window).toEqual(["10:00", "11:00"]); // Sunday window
+    expect(doses[1]!.window).toEqual(["10:00", "10:45"]); // Wednesday morning
   });
 
   it("8. missed day-7 rebooks to the next window; day-28 keeps the 21-day gap", () => {
     const doses = planBiteCourse("2026-09-27", [0, 3, 7, 28], WINDOWS, []);
     // day-7 (2026-10-04) missed; today is 2026-10-05 (Monday, windows exist)
     const res = rescheduleMissedDose(doses, 2, "2026-10-05", WINDOWS, []);
-    expect(res[2].date).toBe("2026-10-05");
-    expect(res[2].window).toEqual(["10:00", "10:45"]);
-    expect(diffDays(res[3].date, res[2].date)).toBe(21);
+    expect(res[2]!.date).toBe("2026-10-05");
+    expect(res[2]!.window).toEqual(["10:00", "10:45"]);
+    expect(diffDays(res[3]!.date, res[2]!.date)).toBe(21);
     // earlier doses untouched
-    expect(res[0].date).toBe("2026-09-27");
-    expect(res[1].date).toBe("2026-09-30");
+    expect(res[0]!.date).toBe("2026-09-27");
+    expect(res[1]!.date).toBe("2026-09-30");
   });
 });

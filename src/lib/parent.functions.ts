@@ -13,13 +13,11 @@ import {
   type PlannedVisit,
 } from "./dosechain";
 
-type AdminClient = Awaited<
-  ReturnType<typeof import("@/integrations/supabase/client.server")["getAdmin"]>
->;
+type AdminClient = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
 
 async function admin(): Promise<AdminClient> {
   const mod = await import("@/integrations/supabase/client.server");
-  return mod.getAdmin();
+  return mod.supabaseAdmin;
 }
 
 /** "now" for planning: demo clock override when set, else real time. */
@@ -63,19 +61,19 @@ function engineSettings(s: SettingsRow): EngineSettings {
 
 function toDoseDef(r: {
   code: string;
-  series: string;
-  rec_age_d: number;
-  min_age_d: number;
+  series: string | null;
+  rec_age_d: number | null;
+  min_age_d: number | null;
   min_gap_prev_d: number | null;
-  is_live: boolean;
+  is_live: boolean | null;
 }): DoseDef {
   return {
     code: r.code,
-    series: r.series,
-    recAgeD: r.rec_age_d,
-    minAgeD: r.min_age_d,
+    series: r.series ?? r.code,
+    recAgeD: r.rec_age_d ?? 0,
+    minAgeD: r.min_age_d ?? 0,
     minGapPrevD: r.min_gap_prev_d,
-    isLive: r.is_live,
+    isLive: r.is_live ?? false,
   };
 }
 
@@ -94,11 +92,11 @@ async function loadCatalogueAndSettings() {
 export const getBookingCatalogue = createServerFn({ method: "GET" }).handler(async () => {
   const { cat, settings } = await loadCatalogueAndSettings();
   return {
-    catalogue: cat.map((d) => ({
+    catalogue: (cat as { code: string; label_en: string; label_hi: string; series: string | null; rec_age_d: number; min_age_d: number; min_gap_prev_d: number | null; is_live: boolean; notes: string | null }[]).map((d) => ({
       code: d.code,
       labelEn: d.label_en,
       labelHi: d.label_hi,
-      series: d.series,
+      series: d.series ?? d.code,
       recAgeD: d.rec_age_d,
       minAgeD: d.min_age_d,
       minGapPrevD: d.min_gap_prev_d,
@@ -255,7 +253,7 @@ export const getChildByToken = createServerFn({ method: "GET" })
 
     return {
       child: { name: child.name, dob: child.dob, sex: child.sex },
-      doses: (doses ?? []).map((d) => ({
+      doses: ((doses ?? []) as { code: string; status: string; due_date: string | null; given_on: string | null; where_given: string | null; visit_id: string | null }[]).map((d) => ({
         code: d.code,
         status: d.status,
         dueDate: d.due_date,
@@ -263,14 +261,14 @@ export const getChildByToken = createServerFn({ method: "GET" })
         whereGiven: d.where_given,
         visitId: d.visit_id,
       })),
-      visits: (visits ?? []).map((v) => ({
+      visits: ((visits ?? []) as { id: string; day: string; slot_label: string | null; status: string }[]).map((v) => ({
         id: v.id,
         day: v.day,
         slotLabel: v.slot_label,
         status: v.status,
       })),
       catalogue: Object.fromEntries(
-        (cat ?? []).map((c) => [c.code, { en: c.label_en, hi: c.label_hi }]),
+        ((cat ?? []) as { code: string; label_en: string; label_hi: string }[]).map((c) => [c.code, { en: c.label_en, hi: c.label_hi }]),
       ),
       clinic: settings,
     };
@@ -294,7 +292,7 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
       a.from("rabies_regimens").select("code, label_en, label_hi, route"),
       a.from("clinic_settings").select("clinic_name, phone, city, bite_windows").eq("id", 1).single(),
     ]);
-    const regimen = (regimens ?? []).find((r) => r.code === bc.regimen);
+    const regimen = ((regimens ?? []) as { code: string; label_en: string; label_hi: string; route: string }[]).find((r) => r.code === bc.regimen);
 
     return {
       case: {
@@ -307,7 +305,7 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
       regimen: regimen
         ? { code: regimen.code, labelEn: regimen.label_en, labelHi: regimen.label_hi, route: regimen.route }
         : null,
-      doses: (doses ?? []).map((d) => ({
+      doses: ((doses ?? []) as { day_offset: number; due_date: string | null; status: string; given_at: string | null }[]).map((d) => ({
         offset: d.day_offset,
         dueDate: d.due_date,
         status: d.status,
