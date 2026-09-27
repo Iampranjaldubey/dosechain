@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { useLang } from "@/lib/i18n";
 import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
-import { getBookingCatalogue, createBooking } from "@/lib/parent.functions";
+import { getBookingCatalogue, createBooking, bookForChild } from "@/lib/parent.functions";
 import { buildPlan, addDays, diffDays, dow, type EngineSettings, type GivenDose } from "@/lib/dosechain";
 import { readVaccineCard } from "@/lib/media.functions";
 import { cn } from "@/lib/utils";
@@ -25,9 +25,10 @@ export const Route = createFileRoute("/book")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    child: typeof search.child === "string" && search.child.length >= 3 ? search.child : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const child = typeof search["child"] === "string" && (search["child"] as string).length >= 3 ? (search["child"] as string) : undefined;
+    return (child ? { child } : {}) as { child?: string };
+  },
   component: BookPage,
 });
 

@@ -97,7 +97,7 @@ function StaffRequests() {
           <ul className="mt-3 space-y-1 text-sm">
             {staff.data.map((s) => (
               <li key={s.user_id} className="flex items-center gap-3">
-                <span className="flex-1">{s.email ?? s.user_id}</span>
+                <span className="flex-1">{s.role === "doctor" ? "Doctor" : "Desk staff"}</span>
                 <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{s.role}</span>
               </li>
             ))}
