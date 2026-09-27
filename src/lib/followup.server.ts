@@ -260,5 +260,6 @@ export async function applyPlanChange(a: Db, id: string) {
       await send(a, guardianId, "plan_confirmed", `Confirmed: ${b.patient_name}'s day-${first.offset} rabies dose is on ${fmt(first.newDate)}. Later doses shifted to keep the right gaps. ✅`, `पुष्टि: ${b.patient_name} का दिन-${first.offset} रेबीज़ टीका ${fmt(first.newDate)} को। आगे के टीके सही अंतर के साथ बदले गए। ✅`);
     await a.from("impact_events").insert({ kind: "bite_rescue", minutes_saved: 10 });
   }
+  await a.from("plan_changes").update({ status: "approved", decided_at: new Date().toISOString() }).eq("id", id);
   return { ok: true };
 }

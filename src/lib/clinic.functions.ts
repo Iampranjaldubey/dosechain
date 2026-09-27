@@ -122,7 +122,7 @@ export const decideApproval = createServerFn({ method: "POST" })
       const { applyPlanChange } = await import("./followup.server");
       await applyPlanChange(sb, data.id);
     }
-    await sb.from("plan_changes").update({ status: data.approve ? "approved" : "rejected", decided_at: new Date().toISOString() }).eq("id", data.id);
+    else await sb.from("plan_changes").update({ status: "rejected", decided_at: new Date().toISOString() }).eq("id", data.id);
     return { ok: true };
   });
 
