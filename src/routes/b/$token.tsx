@@ -48,7 +48,7 @@ function BitePage() {
       </Shell>
     );
 
-  const given = data.doses.filter((d) => d.status === "given").length;
+  const given = data.doses.filter((d: (typeof data.doses)[number]) => d.status === "given").length;
   const total = data.doses.length;
   const pct = total > 0 ? Math.round((given / total) * 100) : 0;
 
@@ -87,7 +87,7 @@ function BitePage() {
 
         {/* dose trail */}
         <ol className="mt-8">
-          {data.doses.map((d, i) => (
+          {data.doses.map((d: (typeof data.doses)[number], i: number) => (
             <li key={d.offset} className="relative flex gap-4 pb-7">
               <div className="flex flex-col items-center">
                 <span
