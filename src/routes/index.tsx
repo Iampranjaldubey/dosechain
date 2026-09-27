@@ -125,7 +125,9 @@ function Index() {
           <div className="relative">
             <div className="blob-soft absolute -inset-5 -z-10 bg-secondary/70" aria-hidden />
             <div className="blob-soft absolute -right-6 -top-6 -z-10 h-24 w-24 bg-[var(--butter)] opacity-50" aria-hidden />
-            <div className="absolute -right-3 -top-10 z-10 sm:-right-8"><Mascot wave className="h-24 w-24 drop-shadow-md sm:h-28 sm:w-28" /></div>
+            <div className="absolute -right-2 -top-8 z-10 sm:-right-6 sm:-top-10">
+              <Sticker>{t.stickerHero}</Sticker>
+            </div>
             <img
               src={heroImg}
               alt="A mother carrying her baby along a trail of footprints toward Nanhe Kadam Child Clinic"
