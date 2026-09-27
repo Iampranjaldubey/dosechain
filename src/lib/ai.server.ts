@@ -53,7 +53,7 @@ export async function transcribe(bytes: Uint8Array, mime: string): Promise<strin
   const apiKey = key();
   const form = new FormData();
   form.append("model", "google/gemini-3.5-transcribe");
-  form.append("file", new File([bytes], "note.webm", { type: mime.startsWith("audio/") ? mime.split(";")[0]! : "audio/webm" }));
+  form.append("file", new File([bytes as Uint8Array<ArrayBuffer>], "note.webm", { type: mime.startsWith("audio/") ? mime.split(";")[0]! : "audio/webm" }));
   form.append("response_format", "json");
   form.append("stream", "true");
   const res = await fetch(`${BASE}/v1/audio/transcriptions`, {
