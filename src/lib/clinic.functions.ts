@@ -45,6 +45,7 @@ export const getDashboard = createServerFn({ method: "POST" })
     ]);
     const { data: recallRaw } = await sb.from("visits").select("id, day, status, children(name, public_token)").eq("kind", "vaccine").or(`status.eq.missed,and(status.in.(booked,confirmed),day.lt.${today})`).order("day").limit(15);
     const { data: newRaw } = await sb.from("visits").select("id, day, slot_label, children(name, public_token)").eq("kind", "vaccine").eq("status", "booked").gte("day", today).order("day").limit(20);
+    const { count: scheduledCount } = await sb.from("messages").select("id", { count: "exact", head: true }).eq("status", "scheduled");
     const caseById = new Map(((bites.data ?? []) as any[]).map((b) => [b.id, b]));
     const visitRows = ((visits.data ?? []) as any[]).map((v) => ({ ...v, bite_cases: v.bite_case_id ? caseById.get(v.bite_case_id) ?? null : null }));
     const ev = (impact.data ?? []) as { kind: string; minutes_saved: number }[];
@@ -56,6 +57,7 @@ export const getDashboard = createServerFn({ method: "POST" })
       bites: bites.data ?? [],
       vials: vials.data ?? [],
       pendingCount: pending.count ?? 0,
+      scheduledCount: scheduledCount ?? 0,
       newBookings: ((newRaw ?? []) as any[]).filter((r) => r.children).map((r) => ({ id: r.id, day: r.day, slot: r.slot_label, name: r.children.name, token: r.children.public_token })),
       recall: ((recallRaw ?? []) as any[]).filter((r) => r.children).map((r) => ({ id: r.id, day: r.day, status: r.status, name: r.children.name, token: r.children.public_token, daysLate: Math.round((Date.parse(today) - Date.parse(r.day)) / 864e5) })),
       vialsUsedToday: ((vials.data ?? []) as any[]).filter((v) => todayIst(v.opened_at) === today).reduce((n, v) => n + (v.sites_used ?? 0), 0),
@@ -121,6 +123,18 @@ export const decideBooking = createServerFn({ method: "POST" })
         body_en: data.approve ? `✅ ${name}'s vaccine visit is confirmed for ${when}. See you at the clinic!` : `Sorry, we couldn't keep ${name}'s slot on ${when}. Please reply and we'll find another time.`,
         body_hi: data.approve ? `✅ ${name} का टीकाकरण ${when} को पक्का हो गया है। क्लिनिक में मिलते हैं!` : `माफ़ कीजिए, ${name} का ${when} का समय नहीं हो पाएगा। जवाब दें, हम दूसरा समय देंगे।`,
       });
+      if (data.approve) {
+        // schedule the day-before reminder for 18:00 IST; the reminder sweep delivers it
+        const eve = new Date(Date.parse(v.day + "T12:30:00Z") - 864e5).toISOString();
+        await sb.from("messages").insert({
+          guardian_id: g, direction: "out", kind: "reminder_1d", visit_id: v.id, status: "scheduled", scheduled_for: eve,
+          quick_replies: ["Yes / हाँ", "Fever / बुखार है", "Change date / तारीख बदलें"],
+          body_en: `Reminder: ${name}'s vaccines are tomorrow (${when}). Reply YES to confirm, or tell us if the child is unwell.`,
+          body_hi: `याद दिलाना: ${name} के टीके कल (${when}) हैं। पुष्टि के लिए "हाँ" लिखें, या बच्चा बीमार हो तो बताएं।`,
+        });
+      } else {
+        await sb.from("messages").delete().eq("visit_id", v.id).eq("status", "scheduled");
+      }
     }
     return { ok: true };
   });

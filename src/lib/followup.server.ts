@@ -58,18 +58,28 @@ export async function runAutomations(a: Db) {
   const today = todayIst(await nowIso(a));
   const tomorrow = addDays(today, 1);
   const { s, bite } = await loadSettings(a);
-  const counts = { reminders: 0, biteReminders: 0, rescues: 0 };
+  const counts = { reminders: 0, biteReminders: 0, rescues: 0, scheduledSent: 0 };
+  const nowStr = await nowIso(a);
 
-  // 1. vaccine reminders for tomorrow
+  // 0. deliver scheduled messages whose time has come (demo clock aware)
+  const { data: dueMsgs } = await a.from("messages").select("id").eq("status", "scheduled").lte("scheduled_for", nowStr);
+  for (const m of (dueMsgs ?? []) as any[]) {
+    await a.from("messages").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", m.id);
+    await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: s.mins_per_recall_call ?? 4 });
+    counts.scheduledSent++;
+  }
+
+  // 1. vaccine reminders for tomorrow (booked or confirmed)
   const { data: visits } = await a
     .from("visits")
     .select("id, day, slot_label, child_id, children(name, guardian_id)")
     .eq("kind", "vaccine")
     .eq("day", tomorrow)
-    .in("status", ["booked"]);
+    .in("status", ["booked", "confirmed"]);
   for (const v of (visits ?? []) as any[]) {
-    const { count } = await a.from("messages").select("id", { count: "exact", head: true }).eq("visit_id", v.id).eq("kind", "reminder_1d");
+    const { count } = await a.from("messages").select("id", { count: "exact", head: true }).eq("visit_id", v.id).eq("kind", "reminder_1d").neq("status", "scheduled");
     if (count || !v.children) continue;
+    await a.from("messages").delete().eq("visit_id", v.id).eq("kind", "reminder_1d").eq("status", "scheduled");
     await send(
       a,
       v.children.guardian_id,

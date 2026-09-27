@@ -15,7 +15,8 @@ export const getThread = createServerFn({ method: "GET" })
       .from("messages")
       .select("id, direction, kind, body_en, body_hi, quick_replies, sent_at, created_at, visit_id")
       .eq("guardian_id", who.guardianId)
-      .order("created_at", { ascending: true })
+      .neq("status", "scheduled")
+      .order("sent_at", { ascending: true, nullsFirst: true })
       .limit(80);
     return { name: who.name, kind: who.kind, lang: who.lang, messages: msgs ?? [] };
   });
