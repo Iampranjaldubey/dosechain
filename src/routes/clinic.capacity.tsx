@@ -22,13 +22,13 @@ type Row = {
 };
 
 const SEED: Row[] = [
-  ["Mon", true, "10:00-13:00, 17:30-20:30", 2, 10, 96, 72, 6, 38],
-  ["Tue", true, "10:00-13:00, 17:30-20:30", 2, 10, 64, 60, 5, 18],
-  ["Wed", true, "10:00-13:00, 17:30-20:30", 1, 10, 58, 36, 4, 42],
-  ["Thu", true, "10:00-13:00, 17:30-20:30", 2, 10, 55, 54, 7, 15],
-  ["Fri", true, "10:00-13:00, 17:30-20:30", 2, 10, 60, 58, 6, 17],
-  ["Sat", true, "10:00-13:00, 17:30-20:30", 2, 10, 128, 72, 9, 55],
-  ["Sun", false, "10:00-11:00 (bite only)", 1, 15, 22, 4, 1, 30],
+  ["Mon", true, "10:00 AM-1:00 PM, 5:30-8:30 PM", 2, 10, 96, 72, 6, 38],
+  ["Tue", true, "10:00 AM-1:00 PM, 5:30-8:30 PM", 2, 10, 64, 60, 5, 18],
+  ["Wed", true, "10:00 AM-1:00 PM, 5:30-8:30 PM", 1, 10, 58, 36, 4, 42],
+  ["Thu", true, "10:00 AM-1:00 PM, 5:30-8:30 PM", 2, 10, 55, 54, 7, 15],
+  ["Fri", true, "10:00 AM-1:00 PM, 5:30-8:30 PM", 2, 10, 60, 58, 6, 17],
+  ["Sat", true, "10:00 AM-1:00 PM, 5:30-8:30 PM", 2, 10, 128, 72, 9, 55],
+  ["Sun", false, "10:00-11:00 AM (bite only)", 1, 15, 22, 4, 1, 30],
 ].map(([day, open, sessions, staff, slotMinutes, requests, booked, noShows, avgWaitMin]) => ({
   day, open, sessions, staff, slotMinutes, requests, booked, noShows, avgWaitMin,
 } as Row));
