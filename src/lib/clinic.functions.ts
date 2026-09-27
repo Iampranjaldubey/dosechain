@@ -117,7 +117,7 @@ export const decideBooking = createServerFn({ method: "POST" })
     const g = v.children?.guardian_id;
     if (g) {
       const name = v.children.name;
-      const when = `${v.day}${v.slot_label ? " " + v.slot_label : ""}`;
+      const when = `${new Date(v.day + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}${v.slot_label ? ", " + v.slot_label : ""}`;
       await sb.from("messages").insert({
         guardian_id: g, direction: "out", kind: data.approve ? "booking_confirmed" : "booking_declined", visit_id: v.id, status: "sent", sent_at: new Date().toISOString(),
         body_en: data.approve ? `✅ ${name}'s vaccine visit is confirmed for ${when}. See you at the clinic!` : `Sorry, we couldn't keep ${name}'s slot on ${when}. Please reply and we'll find another time.`,
