@@ -336,6 +336,50 @@ export type Database = {
         }
         Relationships: []
       }
+      growth_readings: {
+        Row: {
+          child_id: string
+          clinic_id: string
+          created_at: string
+          head_cm: number | null
+          height_cm: number | null
+          id: string
+          measured_on: string
+          source: string
+          weight_kg: number | null
+        }
+        Insert: {
+          child_id: string
+          clinic_id: string
+          created_at?: string
+          head_cm?: number | null
+          height_cm?: number | null
+          id?: string
+          measured_on: string
+          source?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          child_id?: string
+          clinic_id?: string
+          created_at?: string
+          head_cm?: number | null
+          height_cm?: number | null
+          id?: string
+          measured_on?: string
+          source?: string
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_readings_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guardians: {
         Row: {
           clinic_id: string
@@ -362,6 +406,150 @@ export type Database = {
           phone?: string
         }
         Relationships: []
+      }
+      health_documents: {
+        Row: {
+          child_id: string
+          clinic_id: string
+          created_at: string
+          doc_date: string | null
+          file_path: string
+          id: string
+          kind: string
+          source: string
+          title: string | null
+        }
+        Insert: {
+          child_id: string
+          clinic_id: string
+          created_at?: string
+          doc_date?: string | null
+          file_path: string
+          id?: string
+          kind: string
+          source?: string
+          title?: string | null
+        }
+        Update: {
+          child_id?: string
+          clinic_id?: string
+          created_at?: string
+          doc_date?: string | null
+          file_path?: string
+          id?: string
+          kind?: string
+          source?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_documents_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      health_profile: {
+        Row: {
+          allergies: Json
+          birth_weight_kg: number | null
+          blood_group: string | null
+          child_id: string
+          clinic_id: string
+          conditions: Json
+          created_at: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          allergies?: Json
+          birth_weight_kg?: number | null
+          blood_group?: string | null
+          child_id: string
+          clinic_id: string
+          conditions?: Json
+          created_at?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allergies?: Json
+          birth_weight_kg?: number | null
+          blood_group?: string | null
+          child_id?: string
+          clinic_id?: string
+          conditions?: Json
+          created_at?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_profile_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: true
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      health_visits: {
+        Row: {
+          advice: string | null
+          child_id: string
+          clinic_id: string
+          clinic_name: string | null
+          created_at: string
+          diagnosis: string | null
+          doctor_name: string | null
+          follow_up_on: string | null
+          id: string
+          is_illness: boolean
+          source: string
+          symptoms: string | null
+          visit_date: string
+        }
+        Insert: {
+          advice?: string | null
+          child_id: string
+          clinic_id: string
+          clinic_name?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_name?: string | null
+          follow_up_on?: string | null
+          id?: string
+          is_illness?: boolean
+          source?: string
+          symptoms?: string | null
+          visit_date: string
+        }
+        Update: {
+          advice?: string | null
+          child_id?: string
+          clinic_id?: string
+          clinic_name?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          doctor_name?: string | null
+          follow_up_on?: string | null
+          id?: string
+          is_illness?: boolean
+          source?: string
+          symptoms?: string | null
+          visit_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_visits_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       impact_events: {
         Row: {
@@ -448,6 +636,35 @@ export type Database = {
             columns: ["guardian_id"]
             isOneToOne: false
             referencedRelation: "guardians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      milestones: {
+        Row: {
+          achieved_on: string
+          child_id: string
+          clinic_id: string
+          code: string
+        }
+        Insert: {
+          achieved_on: string
+          child_id: string
+          clinic_id: string
+          code: string
+        }
+        Update: {
+          achieved_on?: string
+          child_id?: string
+          clinic_id?: string
+          code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
             referencedColumns: ["id"]
           },
         ]
@@ -544,6 +761,50 @@ export type Database = {
           },
         ]
       }
+      prescriptions: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          days: number | null
+          dose: string | null
+          frequency: string | null
+          health_visit_id: string
+          id: string
+          medicine: string
+          remind: boolean
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          days?: number | null
+          dose?: string | null
+          frequency?: string | null
+          health_visit_id: string
+          id?: string
+          medicine: string
+          remind?: boolean
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          days?: number | null
+          dose?: string | null
+          frequency?: string | null
+          health_visit_id?: string
+          id?: string
+          medicine?: string
+          remind?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescriptions_health_visit_id_fkey"
+            columns: ["health_visit_id"]
+            isOneToOne: false
+            referencedRelation: "health_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rabies_regimens: {
         Row: {
           code: string
@@ -570,6 +831,76 @@ export type Database = {
           route?: string | null
         }
         Relationships: []
+      }
+      share_links: {
+        Row: {
+          child_id: string
+          clinic_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          revoked_at: string | null
+          token: string
+        }
+        Insert: {
+          child_id: string
+          clinic_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          revoked_at?: string | null
+          token: string
+        }
+        Update: {
+          child_id?: string
+          clinic_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_links_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_views: {
+        Row: {
+          clinic_id: string
+          id: string
+          link_id: string
+          viewed_at: string
+          viewer: string | null
+        }
+        Insert: {
+          clinic_id: string
+          id?: string
+          link_id: string
+          viewed_at?: string
+          viewer?: string | null
+        }
+        Update: {
+          clinic_id?: string
+          id?: string
+          link_id?: string
+          viewed_at?: string
+          viewer?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_views_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "share_links"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_requests: {
         Row: {
