@@ -17,10 +17,13 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ApiCapacityAnalysisRouteImport } from './routes/api/capacity-analysis'
 import { Route as BTokenRouteImport } from './routes/b/$token'
 import { Route as CTokenRouteImport } from './routes/c/$token'
+import { Route as CertTokenRouteImport } from './routes/cert.$token'
 import { Route as ClinicIndexRouteImport } from './routes/clinic.index'
 import { Route as ClinicApprovalsRouteImport } from './routes/clinic.approvals'
 import { Route as ClinicCapacityRouteImport } from './routes/clinic.capacity'
 import { Route as ClinicMessagesRouteImport } from './routes/clinic.messages'
+import { Route as FTokenRouteImport } from './routes/f.$token'
+import { Route as VerifyTokenRouteImport } from './routes/verify.$token'
 import { Route as WaTokenRouteImport } from './routes/wa.$token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -63,6 +66,11 @@ const CTokenRoute = CTokenRouteImport.update({
   path: '/c/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertTokenRoute = CertTokenRouteImport.update({
+  id: '/cert/$token',
+  path: '/cert/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClinicIndexRoute = ClinicIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -83,6 +91,16 @@ const ClinicMessagesRoute = ClinicMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => ClinicRoute,
 } as any)
+const FTokenRoute = FTokenRouteImport.update({
+  id: '/f/$token',
+  path: '/f/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyTokenRoute = VerifyTokenRouteImport.update({
+  id: '/verify/$token',
+  path: '/verify/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WaTokenRoute = WaTokenRouteImport.update({
   id: '/wa/$token',
   path: '/wa/$token',
@@ -98,9 +116,12 @@ export interface FileRoutesByFullPath {
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/cert/$token': typeof CertTokenRoute
   '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
   '/clinic/messages': typeof ClinicMessagesRoute
+  '/f/$token': typeof FTokenRoute
+  '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
   '/clinic/': typeof ClinicIndexRoute
 }
@@ -112,9 +133,12 @@ export interface FileRoutesByTo {
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/cert/$token': typeof CertTokenRoute
   '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
   '/clinic/messages': typeof ClinicMessagesRoute
+  '/f/$token': typeof FTokenRoute
+  '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
   '/clinic': typeof ClinicIndexRoute
 }
@@ -128,9 +152,12 @@ export interface FileRoutesById {
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/cert/$token': typeof CertTokenRoute
   '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
   '/clinic/messages': typeof ClinicMessagesRoute
+  '/f/$token': typeof FTokenRoute
+  '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
   '/clinic/': typeof ClinicIndexRoute
 }
@@ -145,9 +172,12 @@ export interface FileRouteTypes {
     | '/api/capacity-analysis'
     | '/b/$token'
     | '/c/$token'
+    | '/cert/$token'
     | '/clinic/approvals'
     | '/clinic/capacity'
     | '/clinic/messages'
+    | '/f/$token'
+    | '/verify/$token'
     | '/wa/$token'
     | '/clinic/'
   fileRoutesByTo: FileRoutesByTo
@@ -159,9 +189,12 @@ export interface FileRouteTypes {
     | '/api/capacity-analysis'
     | '/b/$token'
     | '/c/$token'
+    | '/cert/$token'
     | '/clinic/approvals'
     | '/clinic/capacity'
     | '/clinic/messages'
+    | '/f/$token'
+    | '/verify/$token'
     | '/wa/$token'
     | '/clinic'
   id:
@@ -174,9 +207,12 @@ export interface FileRouteTypes {
     | '/api/capacity-analysis'
     | '/b/$token'
     | '/c/$token'
+    | '/cert/$token'
     | '/clinic/approvals'
     | '/clinic/capacity'
     | '/clinic/messages'
+    | '/f/$token'
+    | '/verify/$token'
     | '/wa/$token'
     | '/clinic/'
   fileRoutesById: FileRoutesById
@@ -190,6 +226,9 @@ export interface RootRouteChildren {
   ApiCapacityAnalysisRoute: typeof ApiCapacityAnalysisRoute
   BTokenRoute: typeof BTokenRoute
   CTokenRoute: typeof CTokenRoute
+  CertTokenRoute: typeof CertTokenRoute
+  FTokenRoute: typeof FTokenRoute
+  VerifyTokenRoute: typeof VerifyTokenRoute
   WaTokenRoute: typeof WaTokenRoute
 }
 
@@ -251,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cert/$token': {
+      id: '/cert/$token'
+      path: '/cert/$token'
+      fullPath: '/cert/$token'
+      preLoaderRoute: typeof CertTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clinic/': {
       id: '/clinic/'
       path: '/'
@@ -278,6 +324,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/clinic/messages'
       preLoaderRoute: typeof ClinicMessagesRouteImport
       parentRoute: typeof ClinicRoute
+    }
+    '/f/$token': {
+      id: '/f/$token'
+      path: '/f/$token'
+      fullPath: '/f/$token'
+      preLoaderRoute: typeof FTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify/$token': {
+      id: '/verify/$token'
+      path: '/verify/$token'
+      fullPath: '/verify/$token'
+      preLoaderRoute: typeof VerifyTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/wa/$token': {
       id: '/wa/$token'
@@ -315,6 +375,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCapacityAnalysisRoute: ApiCapacityAnalysisRoute,
   BTokenRoute: BTokenRoute,
   CTokenRoute: CTokenRoute,
+  CertTokenRoute: CertTokenRoute,
+  FTokenRoute: FTokenRoute,
+  VerifyTokenRoute: VerifyTokenRoute,
   WaTokenRoute: WaTokenRoute,
 }
 export const routeTree = rootRouteImport
