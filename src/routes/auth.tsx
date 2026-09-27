@@ -44,7 +44,7 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[1.1fr_1fr]">
       <aside className="relative hidden overflow-hidden bg-primary p-12 text-primary-foreground lg:flex lg:flex-col">
-        <Link to="/" className="rounded-full bg-background/95 px-4 py-2 self-start"><Logo /></Link>
+        <Link to="/" className="self-start rounded-full bg-background/95 px-4 py-2 text-foreground"><Logo /></Link>
         <div className="mt-auto max-w-md">
           <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">Clinic desk</p>
           <h2 className="mt-3 font-display text-5xl leading-tight">Every child's next dose, already on your screen.</h2>
