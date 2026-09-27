@@ -487,13 +487,6 @@ function BookExisting({ token, catalogue }: { token: string; catalogue: NonNulla
   const today = todayIst();
 
   const slotDays = useMemo(() => {
-    const eng: EngineSettings = {
-      opdDays: [],
-      holidays: catalogue.settings.holidays ?? [],
-      rotaBrand: catalogue.settings.rotaBrand,
-      hepaType: catalogue.settings.hepaType,
-    };
-    void eng;
     const out: { date: string; slots: string[] }[] = [];
     for (let i = 0; i < 21 && out.length < 10; i++) {
       const d = addDays(today, i);
