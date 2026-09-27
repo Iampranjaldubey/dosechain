@@ -139,7 +139,6 @@ function StartPage() {
             {busy ? t.loading : t.startCta}
           </button>
         </div>
-      </div>
         <ReturningCard />
       </div>
     </ParentShell>
