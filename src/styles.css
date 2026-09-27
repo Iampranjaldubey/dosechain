@@ -147,3 +147,26 @@
     letter-spacing: -0.01em;
   }
 }
+
+/* ---- UX motion layer: scroll reveal + hero micro-motion ---- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+}
+.reveal {
+  opacity: 0;
+}
+.reveal.is-visible {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.footprint-drift {
+  animation: drift 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; }
+  .reveal.is-visible, .footprint-drift { animation: none; }
+}
