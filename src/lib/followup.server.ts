@@ -179,10 +179,10 @@ export async function runAutomations(a: Db, clinicId?: string) {
 // ---------------- parent replies ----------------
 
 export async function resolveToken(a: Db, token: string) {
-  const { data: child } = await a.from("children").select("id, name, dob, guardian_id, guardians(name, lang)").eq("public_token", token).maybeSingle();
-  if (child) return { kind: "child" as const, child, guardianId: child.guardian_id as string, name: child.name as string, lang: (child.guardians?.lang ?? "hi") as string };
-  const { data: bc } = await a.from("bite_cases").select("id, patient_name, guardian_id, guardians(name, lang)").eq("public_token", token).maybeSingle();
-  if (bc) return { kind: "bite" as const, bite: bc, guardianId: bc.guardian_id as string, name: bc.patient_name as string, lang: (bc.guardians?.lang ?? "hi") as string };
+  const { data: child } = await a.from("children").select("id, name, dob, guardian_id, clinic_id, guardians(name, lang)").eq("public_token", token).maybeSingle();
+  if (child) return { kind: "child" as const, child, clinicId: child.clinic_id as string, guardianId: child.guardian_id as string, name: child.name as string, lang: (child.guardians?.lang ?? "hi") as string };
+  const { data: bc } = await a.from("bite_cases").select("id, patient_name, guardian_id, clinic_id, guardians(name, lang)").eq("public_token", token).maybeSingle();
+  if (bc) return { kind: "bite" as const, bite: bc, clinicId: bc.clinic_id as string, guardianId: bc.guardian_id as string, name: bc.patient_name as string, lang: (bc.guardians?.lang ?? "hi") as string };
   return null;
 }
 
@@ -215,7 +215,7 @@ export async function handleReply(a: Db, token: string, text: string) {
   if (parsed.intent === "confirm") {
     if (visit) await a.from("visits").update({ status: "confirmed" }).eq("id", visit.id);
     await send(a, who.guardianId, "ack", "Thank you! See you at the clinic. 🙏", "धन्यवाद! क्लिनिक में मिलते हैं। 🙏");
-    await a.from("impact_events").insert({ kind: "auto_confirm", minutes_saved: 4 });
+    await a.from("impact_events").insert({ kind: "auto_confirm", minutes_saved: 4, clinic_id: who.clinicId });
     return { parsed };
   }
 
@@ -258,7 +258,7 @@ Return ONLY JSON {"en":"...","hi":"..."} where hi is natural Hindi in Devanagari
 }
 
 async function proposeChildMove(a: Db, child: any, visit: any, requested: string | null, today: string, defaultShift: number) {
-  const { eng } = await loadSettings(a);
+  const { eng } = await loadSettings(a, child.clinic_id);
   const [{ data: cat }, { data: doses }] = await Promise.all([
     a.from("vaccine_doses").select("*").order("sort"),
     a.from("child_doses").select("code, status, given_on, visit_id").eq("child_id", child.id),
@@ -291,7 +291,7 @@ export async function applyPlanChange(a: Db, id: string) {
     guardianId = c?.guardian_id ?? null;
     if (guardianId)
       await send(a, guardianId, "plan_confirmed", `Dr. confirmed: ${c.name}'s visit moved to ${fmt(diff.toDay)}. The full vaccine plan has been updated and stays on track. ✅`, `डॉक्टर ने पुष्टि की: ${c.name} की विज़िट ${fmt(diff.toDay)} को। पूरी टीका योजना अपडेट हो गई है। ✅`);
-    await a.from("impact_events").insert({ kind: "auto_replan", minutes_saved: 10 });
+    await a.from("impact_events").insert({ kind: "auto_replan", minutes_saved: 10, clinic_id: pc.clinic_id });
   } else if (diff.type === "bite") {
     for (const c of diff.changes ?? []) await a.from("bite_doses").update({ due_date: c.newDate, status: "booked", visit_id: null }).eq("id", c.doseId);
     const { data: b } = await a.from("bite_cases").select("guardian_id, patient_name").eq("id", pc.bite_case_id).single();
@@ -299,7 +299,7 @@ export async function applyPlanChange(a: Db, id: string) {
     const first = diff.changes?.[0];
     if (guardianId && first)
       await send(a, guardianId, "plan_confirmed", `Confirmed: ${b.patient_name}'s day-${first.offset} rabies dose is on ${fmt(first.newDate)}. Later doses shifted to keep the right gaps. ✅`, `पुष्टि: ${b.patient_name} का दिन-${first.offset} रेबीज़ टीका ${fmt(first.newDate)} को। आगे के टीके सही अंतर के साथ बदले गए। ✅`);
-    await a.from("impact_events").insert({ kind: "bite_rescue", minutes_saved: 10 });
+    await a.from("impact_events").insert({ kind: "bite_rescue", minutes_saved: 10, clinic_id: pc.clinic_id });
   }
   await a.from("plan_changes").update({ status: "approved", decided_at: new Date().toISOString() }).eq("id", id);
   return { ok: true };
