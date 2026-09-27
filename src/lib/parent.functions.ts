@@ -92,11 +92,11 @@ async function loadCatalogueAndSettings() {
 export const getBookingCatalogue = createServerFn({ method: "GET" }).handler(async () => {
   const { cat, settings } = await loadCatalogueAndSettings();
   return {
-    catalogue: (cat as { code: string; label_en: string; label_hi: string; series: string; rec_age_d: number; min_age_d: number; min_gap_prev_d: number | null; is_live: boolean; notes: string | null }[]).map((d) => ({
+    catalogue: (cat as { code: string; label_en: string; label_hi: string; series: string | null; rec_age_d: number; min_age_d: number; min_gap_prev_d: number | null; is_live: boolean; notes: string | null }[]).map((d) => ({
       code: d.code,
       labelEn: d.label_en,
       labelHi: d.label_hi,
-      series: d.series,
+      series: d.series ?? d.code,
       recAgeD: d.rec_age_d,
       minAgeD: d.min_age_d,
       minGapPrevD: d.min_gap_prev_d,
