@@ -1,3 +1,4 @@
+import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useLang } from "@/lib/i18n";
@@ -131,15 +132,6 @@ function BitePage() {
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link to="/" aria-label="DoseChain home">
-          <Logo />
-        </Link>
-        <LangToggle />
-      </header>
-      {children}
-    </div>
-  );
+  const hi = useLang().lang === "hi";
+  return <ParentShell eyebrow={hi?"रेबीज़ कोर्स":"Rabies course"}>{children}</ParentShell>;
 }
