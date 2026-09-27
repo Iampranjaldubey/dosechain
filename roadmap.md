@@ -31,3 +31,4 @@
 
 - [ ] Input validation sweep: phone numbers exactly 10 digits (Indian mobile), other length/format limits across all forms + server
 - [ ] Child Health Passport (in progress)
+- [ ] Hero image: revert to original thick rounded border
