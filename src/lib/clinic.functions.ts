@@ -116,9 +116,10 @@ export const getDashboard = createServerFn({ method: "POST" })
 
 export const runAutomationsNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid().optional() }).parse(d))
+  .handler(async ({ data, context }) => {
     const { runAutomations } = await import("./followup.server");
-    return runAutomations(context.supabase);
+    return runAutomations(context.supabase, data?.clinicId);
   });
 
 export const setDemoClock = createServerFn({ method: "POST" })
