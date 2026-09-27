@@ -24,6 +24,7 @@ import { Route as ClinicApprovalsRouteImport } from './routes/clinic.approvals'
 import { Route as ClinicCapacityRouteImport } from './routes/clinic.capacity'
 import { Route as ClinicMessagesRouteImport } from './routes/clinic.messages'
 import { Route as ClinicRecallRouteImport } from './routes/clinic.recall'
+import { Route as ClinicSettingsRouteImport } from './routes/clinic.settings'
 import { Route as FTokenRouteImport } from './routes/f.$token'
 import { Route as VerifyTokenRouteImport } from './routes/verify.$token'
 import { Route as WaTokenRouteImport } from './routes/wa.$token'
@@ -103,6 +104,11 @@ const ClinicRecallRoute = ClinicRecallRouteImport.update({
   path: '/recall',
   getParentRoute: () => ClinicRoute,
 } as any)
+const ClinicSettingsRoute = ClinicSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => ClinicRoute,
+} as any)
 const FTokenRoute = FTokenRouteImport.update({
   id: '/f/$token',
   path: '/f/$token',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/clinic/capacity': typeof ClinicCapacityRoute
   '/clinic/messages': typeof ClinicMessagesRoute
   '/clinic/recall': typeof ClinicRecallRoute
+  '/clinic/settings': typeof ClinicSettingsRoute
   '/f/$token': typeof FTokenRoute
   '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/clinic/capacity': typeof ClinicCapacityRoute
   '/clinic/messages': typeof ClinicMessagesRoute
   '/clinic/recall': typeof ClinicRecallRoute
+  '/clinic/settings': typeof ClinicSettingsRoute
   '/f/$token': typeof FTokenRoute
   '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/clinic/capacity': typeof ClinicCapacityRoute
   '/clinic/messages': typeof ClinicMessagesRoute
   '/clinic/recall': typeof ClinicRecallRoute
+  '/clinic/settings': typeof ClinicSettingsRoute
   '/f/$token': typeof FTokenRoute
   '/verify/$token': typeof VerifyTokenRoute
   '/wa/$token': typeof WaTokenRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/clinic/capacity'
     | '/clinic/messages'
     | '/clinic/recall'
+    | '/clinic/settings'
     | '/f/$token'
     | '/verify/$token'
     | '/wa/$token'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/clinic/capacity'
     | '/clinic/messages'
     | '/clinic/recall'
+    | '/clinic/settings'
     | '/f/$token'
     | '/verify/$token'
     | '/wa/$token'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/clinic/capacity'
     | '/clinic/messages'
     | '/clinic/recall'
+    | '/clinic/settings'
     | '/f/$token'
     | '/verify/$token'
     | '/wa/$token'
@@ -364,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClinicRecallRouteImport
       parentRoute: typeof ClinicRoute
     }
+    '/clinic/settings': {
+      id: '/clinic/settings'
+      path: '/settings'
+      fullPath: '/clinic/settings'
+      preLoaderRoute: typeof ClinicSettingsRouteImport
+      parentRoute: typeof ClinicRoute
+    }
     '/f/$token': {
       id: '/f/$token'
       path: '/f/$token'
@@ -393,6 +412,7 @@ interface ClinicRouteChildren {
   ClinicCapacityRoute: typeof ClinicCapacityRoute
   ClinicMessagesRoute: typeof ClinicMessagesRoute
   ClinicRecallRoute: typeof ClinicRecallRoute
+  ClinicSettingsRoute: typeof ClinicSettingsRoute
   ClinicIndexRoute: typeof ClinicIndexRoute
 }
 
@@ -401,6 +421,7 @@ const ClinicRouteChildren: ClinicRouteChildren = {
   ClinicCapacityRoute: ClinicCapacityRoute,
   ClinicMessagesRoute: ClinicMessagesRoute,
   ClinicRecallRoute: ClinicRecallRoute,
+  ClinicSettingsRoute: ClinicSettingsRoute,
   ClinicIndexRoute: ClinicIndexRoute,
 }
 
