@@ -259,10 +259,15 @@ function Index() {
 
       {/* footer */}
       <footer className="border-t border-border">
-        <div className="mx-auto max-w-6xl px-4 py-12">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-start sm:justify-between">
           <Logo />
-          <p className="mt-5 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+          <p className="max-w-xl text-xs leading-relaxed text-muted-foreground sm:text-right">
             {t.footerDisclaimer}
+          </p>
+        </div>
+        <div className="border-t border-border/60">
+          <p className="mx-auto max-w-6xl px-4 py-4 text-center text-[11px] text-muted-foreground/70">
+            © 2026 Nanhe Kadam Child Clinic · Vijay Nagar, Indore
           </p>
         </div>
       </footer>
