@@ -127,10 +127,10 @@ describe("dosechain engine", () => {
       givenOn: givenOn(dob, d.recAgeD),
     }));
     const plan = buildPlan(dob, history, CAT, SETTINGS, "2026-09-27");
-    expect(plan[0].doses).toContain("DTP2");
-    expect(plan[0].doses).not.toContain("DTP1");
-    expect(plan[0].date).toBe("2026-10-24"); // dob+70, ≥28d after 6w visit
-    expect(plan[0].status).toBe("bookable");
+    expect(plan[0]!.doses).toContain("DTP2");
+    expect(plan[0]!.doses).not.toContain("DTP1");
+    expect(plan[0]!.date).toBe("2026-10-24"); // dob+70, ≥28d after 6w visit
+    expect(plan[0]!.status).toBe("bookable");
   });
 });
 
@@ -153,10 +153,10 @@ describe("bite lane engine", () => {
       "2026-10-04",
       "2026-10-25",
     ]);
-    expect(doses[0].window).toBeNull(); // day 0 is immediate
-    expect(doses[2].window).toEqual(["10:00", "11:00"]); // Sunday window
-    expect(doses[3].window).toEqual(["10:00", "11:00"]); // Sunday window
-    expect(doses[1].window).toEqual(["10:00", "10:45"]); // Wednesday morning
+    expect(doses[0]!.window).toBeNull(); // day 0 is immediate
+    expect(doses[2]!.window).toEqual(["10:00", "11:00"]); // Sunday window
+    expect(doses[3]!.window).toEqual(["10:00", "11:00"]); // Sunday window
+    expect(doses[1]!.window).toEqual(["10:00", "10:45"]); // Wednesday morning
   });
 
   it("8. missed day-7 rebooks to the next window; day-28 keeps the 21-day gap", () => {
