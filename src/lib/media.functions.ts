@@ -82,12 +82,12 @@ export const speakMessage = createServerFn({ method: "POST" })
 // ---------- 4. certificate + public verify ----------
 async function certData(token: string, full: boolean) {
   const a = await admin();
-  const { data: child } = await a.from("children").select("id, name, dob, sex, public_token").eq("public_token", token).maybeSingle();
+  const { data: child } = await a.from("children").select("id, name, dob, sex, public_token, clinic_id").eq("public_token", token).maybeSingle();
   if (!child) return null;
   const [{ data: doses }, { data: cat }, { data: s }] = await Promise.all([
     a.from("child_doses").select("code, status, given_on, where_given").eq("child_id", child.id).in("status", ["given", "given_elsewhere"]).order("given_on"),
     a.from("vaccine_doses").select("code, label_en, label_hi, sort"),
-    a.from("clinic_settings").select("clinic_name, doctor_name, city, phone").eq("id", 1).single(),
+    a.from("clinic_settings").select("clinic_name, doctor_name, city, phone").eq("clinic_id", (child as any).clinic_id).maybeSingle(),
   ]);
   const byCode = new Map(((cat ?? []) as any[]).map((c) => [c.code, c]));
   return {
