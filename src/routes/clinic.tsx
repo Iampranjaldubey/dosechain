@@ -25,6 +25,7 @@ export const Route = createFileRoute("/clinic")({
 
 const NAV = [
   { to: "/clinic", label: "Today", hint: "Visits, vial, bite lane" },
+  { to: "/clinic/me", label: "My clinics", hint: "Children, visits, capacity" },
   { to: "/clinic/recall", label: "Recall", hint: "Missed & overdue" },
   { to: "/clinic/approvals", label: "Approvals", hint: "Plan changes & staff" },
   { to: "/clinic/messages", label: "Replies", hint: "Parent messages" },

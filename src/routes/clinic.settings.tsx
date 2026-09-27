@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useClinic } from "@/lib/clinic-context";
-import { addStaff, getClinicProfile, listTeam, removeStaff, saveClinicProfile } from "@/lib/clinic.functions";
+import { addStaff, approveStaff, cancelInvite, getClinicProfile, listInvites, listStaffRequests, listTeam, removeStaff, saveClinicProfile } from "@/lib/clinic.functions";
 
 export const Route = createFileRoute("/clinic/settings")({
   head: () => ({
@@ -53,9 +53,11 @@ function Team({ clinicId, isDoctor }: { clinicId: string; isDoctor: boolean }) {
   const add = useMutation({
     mutationFn: () => addStaff({ data: { clinicId, email, role } }),
     onSuccess: (r) => {
-      if (r.result === "not_found") toast.error("No account with that email yet. Ask them to sign up at the staff sign-in page first, then add them here.");
-      else { toast.success("Staff member added"); setEmail(""); }
+      if (r.result === "invited") toast.success("Invite saved. They join automatically when they sign up with this email.");
+      else toast.success("Staff member added");
+      setEmail("");
       void qc.invalidateQueries({ queryKey: ["team", clinicId] });
+      void qc.invalidateQueries({ queryKey: ["invites", clinicId] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -88,10 +90,60 @@ function Team({ clinicId, isDoctor }: { clinicId: string; isDoctor: boolean }) {
             <option value="desk">Desk staff</option>
             <option value="doctor">Doctor</option>
           </select>
-          <button disabled={add.isPending} className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60">Add staff</button>
+          <button disabled={add.isPending} className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60">Invite</button>
         </form>
       )}
+      {isDoctor && <Pending clinicId={clinicId} />}
     </section>
+  );
+}
+
+function Pending({ clinicId }: { clinicId: string }) {
+  const qc = useQueryClient();
+  const invites = useQuery({ queryKey: ["invites", clinicId], queryFn: () => listInvites({ data: { clinicId } }) });
+  const reqs = useQuery({ queryKey: ["staffreq", clinicId], queryFn: () => listStaffRequests({ data: { clinicId } }) });
+  const refresh = () => ["invites", "staffreq", "team"].forEach((k) => void qc.invalidateQueries({ queryKey: [k, clinicId] }));
+  const cancel = useMutation({ mutationFn: (id: string) => cancelInvite({ data: { id } }), onSuccess: refresh, onError: (e: Error) => toast.error(e.message) });
+  const decide = useMutation({
+    mutationFn: (v: { userId: string; approve: boolean }) => approveStaff({ data: { clinicId, ...v } }),
+    onSuccess: (_r, v) => { toast.success(v.approve ? "Approved as desk staff" : "Request declined"); refresh(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const r = (reqs.data ?? []) as { user_id: string; email: string | null }[];
+  const i = invites.data ?? [];
+  if (!r.length && !i.length) return null;
+  return (
+    <div className="mt-6 space-y-4">
+      {r.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold">Asking to join</h3>
+          <ul className="mt-2 divide-y divide-border">
+            {r.map((x) => (
+              <li key={x.user_id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+                <span className="truncate">{x.email ?? "New staff member"}</span>
+                <span className="flex gap-2">
+                  <button onClick={() => decide.mutate({ userId: x.user_id, approve: true })} className="rounded-xl bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">Approve</button>
+                  <button onClick={() => decide.mutate({ userId: x.user_id, approve: false })} className="rounded-xl border border-border px-3 py-1.5 text-sm">Decline</button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {i.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold">Invited, waiting for sign-up</h3>
+          <ul className="mt-2 divide-y divide-border">
+            {i.map((x) => (
+              <li key={x.id} className="flex items-center justify-between gap-2 py-2.5">
+                <span className="truncate">{x.email} <span className="text-xs text-muted-foreground">· {x.role === "doctor" ? "Doctor" : "Desk staff"}</span></span>
+                <button onClick={() => cancel.mutate(x.id)} className="text-sm text-destructive hover:underline">Cancel</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 

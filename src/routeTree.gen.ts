@@ -22,6 +22,7 @@ import { Route as CertTokenRouteImport } from './routes/cert.$token'
 import { Route as ClinicIndexRouteImport } from './routes/clinic.index'
 import { Route as ClinicApprovalsRouteImport } from './routes/clinic.approvals'
 import { Route as ClinicCapacityRouteImport } from './routes/clinic.capacity'
+import { Route as ClinicMeRouteImport } from './routes/clinic.me'
 import { Route as ClinicMessagesRouteImport } from './routes/clinic.messages'
 import { Route as ClinicRecallRouteImport } from './routes/clinic.recall'
 import { Route as ClinicSettingsRouteImport } from './routes/clinic.settings'
@@ -96,6 +97,11 @@ const ClinicCapacityRoute = ClinicCapacityRouteImport.update({
   path: '/capacity',
   getParentRoute: () => ClinicRoute,
 } as any)
+const ClinicMeRoute = ClinicMeRouteImport.update({
+  id: '/me',
+  path: '/me',
+  getParentRoute: () => ClinicRoute,
+} as any)
 const ClinicMessagesRoute = ClinicMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/cert/$token': typeof CertTokenRoute
   '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
+  '/clinic/me': typeof ClinicMeRoute
   '/clinic/messages': typeof ClinicMessagesRoute
   '/clinic/recall': typeof ClinicRecallRoute
   '/clinic/settings': typeof ClinicSettingsRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/cert/$token': typeof CertTokenRoute
   '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
+  '/clinic/me': typeof ClinicMeRoute
   '/clinic/messages': typeof ClinicMessagesRoute
   '/clinic/recall': typeof ClinicRecallRoute
   '/clinic/settings': typeof ClinicSettingsRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/cert/$token': typeof CertTokenRoute
   '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
+  '/clinic/me': typeof ClinicMeRoute
   '/clinic/messages': typeof ClinicMessagesRoute
   '/clinic/recall': typeof ClinicRecallRoute
   '/clinic/settings': typeof ClinicSettingsRoute
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/cert/$token'
     | '/clinic/approvals'
     | '/clinic/capacity'
+    | '/clinic/me'
     | '/clinic/messages'
     | '/clinic/recall'
     | '/clinic/settings'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/cert/$token'
     | '/clinic/approvals'
     | '/clinic/capacity'
+    | '/clinic/me'
     | '/clinic/messages'
     | '/clinic/recall'
     | '/clinic/settings'
@@ -266,6 +277,7 @@ export interface FileRouteTypes {
     | '/cert/$token'
     | '/clinic/approvals'
     | '/clinic/capacity'
+    | '/clinic/me'
     | '/clinic/messages'
     | '/clinic/recall'
     | '/clinic/settings'
@@ -388,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClinicCapacityRouteImport
       parentRoute: typeof ClinicRoute
     }
+    '/clinic/me': {
+      id: '/clinic/me'
+      path: '/me'
+      fullPath: '/clinic/me'
+      preLoaderRoute: typeof ClinicMeRouteImport
+      parentRoute: typeof ClinicRoute
+    }
     '/clinic/messages': {
       id: '/clinic/messages'
       path: '/messages'
@@ -450,6 +469,7 @@ declare module '@tanstack/react-router' {
 interface ClinicRouteChildren {
   ClinicApprovalsRoute: typeof ClinicApprovalsRoute
   ClinicCapacityRoute: typeof ClinicCapacityRoute
+  ClinicMeRoute: typeof ClinicMeRoute
   ClinicMessagesRoute: typeof ClinicMessagesRoute
   ClinicRecallRoute: typeof ClinicRecallRoute
   ClinicSettingsRoute: typeof ClinicSettingsRoute
@@ -459,6 +479,7 @@ interface ClinicRouteChildren {
 const ClinicRouteChildren: ClinicRouteChildren = {
   ClinicApprovalsRoute: ClinicApprovalsRoute,
   ClinicCapacityRoute: ClinicCapacityRoute,
+  ClinicMeRoute: ClinicMeRoute,
   ClinicMessagesRoute: ClinicMessagesRoute,
   ClinicRecallRoute: ClinicRecallRoute,
   ClinicSettingsRoute: ClinicSettingsRoute,
