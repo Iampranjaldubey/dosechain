@@ -6,7 +6,10 @@
 
 /*
  * DoseChain design system — "Nanhe Kadam" (little steps).
- * Warm, trustworthy clinic palette; the dose timeline is a path of footprints.
+ * Fresh Mint palette (locked with the user): cool paper background, deep
+ * clinic green primary, soft mint, sky + amber accents. Headings in
+ * DM Serif Display (handwritten-accent feel), body in Fira Sans.
+ * The dose timeline is a trail of footprints.
  */
 
 @theme inline {
@@ -49,79 +52,82 @@
   --color-overdue-foreground: var(--overdue-foreground);
   --color-wa: var(--wa);
   --color-wa-foreground: var(--wa-foreground);
-  --font-sans: "Plus Jakarta Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Fira Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "DM Serif Display", "Noto Sans Devanagari", Georgia, serif;
 }
 
 :root {
   --radius: 0.875rem;
-  /* cream background, ink text */
-  --background: oklch(0.982 0.008 90);
-  --foreground: oklch(0.28 0.03 200);
+  /* Fresh Mint: cool paper #F7FAF9, ink text */
+  --background: oklch(0.978 0.006 175);
+  --foreground: oklch(0.27 0.03 185);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.28 0.03 200);
+  --card-foreground: oklch(0.27 0.03 185);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.28 0.03 200);
-  /* teal-700 #0F5E63 */
-  --primary: oklch(0.43 0.07 200);
-  --primary-foreground: oklch(0.985 0.01 195);
-  /* teal-50 #E6F2F1 */
-  --secondary: oklch(0.955 0.02 195);
-  --secondary-foreground: oklch(0.43 0.07 200);
-  --muted: oklch(0.955 0.012 90);
-  --muted-foreground: oklch(0.52 0.025 200);
-  --accent: oklch(0.955 0.02 195);
-  --accent-foreground: oklch(0.43 0.07 200);
-  /* coral #E9735B */
-  --destructive: oklch(0.62 0.16 40);
+  --popover-foreground: oklch(0.27 0.03 185);
+  /* deep clinic green #0E7C66 */
+  --primary: oklch(0.50 0.09 172);
+  --primary-foreground: oklch(0.985 0.01 175);
+  /* soft mint #7FD1B9 at low saturation for surfaces */
+  --secondary: oklch(0.93 0.04 172);
+  --secondary-foreground: oklch(0.40 0.08 172);
+  --muted: oklch(0.95 0.015 175);
+  --muted-foreground: oklch(0.50 0.025 185);
+  --accent: oklch(0.93 0.04 172);
+  --accent-foreground: oklch(0.40 0.08 172);
+  /* alert red derived from amber family */
+  --destructive: oklch(0.60 0.18 35);
   --destructive-foreground: oklch(0.985 0.01 90);
-  --border: oklch(0.91 0.015 195);
-  --input: oklch(0.91 0.015 195);
-  --ring: oklch(0.43 0.07 200);
+  --border: oklch(0.90 0.02 175);
+  --input: oklch(0.90 0.02 175);
+  --ring: oklch(0.50 0.09 172);
   /* status tokens */
-  --given: oklch(0.55 0.11 155);       /* leaf #2F8F5B */
+  --given: oklch(0.55 0.11 155);       /* leaf green */
   --given-foreground: oklch(0.985 0.01 155);
-  --booked: oklch(0.43 0.07 200);      /* teal */
-  --booked-foreground: oklch(0.985 0.01 195);
-  --planned: oklch(0.55 0.02 200);     /* slate #6B7C80 */
-  --changed: oklch(0.75 0.13 75);      /* saffron #F4A340 */
-  --changed-foreground: oklch(0.3 0.05 75);
-  --overdue: oklch(0.62 0.16 40);      /* coral #E9735B */
+  --booked: oklch(0.50 0.09 172);      /* clinic green */
+  --booked-foreground: oklch(0.985 0.01 175);
+  --planned: oklch(0.56 0.02 200);     /* slate */
+  --changed: oklch(0.78 0.13 85);      /* amber #F2B544 */
+  --changed-foreground: oklch(0.32 0.05 85);
+  --overdue: oklch(0.60 0.18 35);      /* warm red */
   --overdue-foreground: oklch(0.985 0.01 90);
-  --wa: oklch(0.55 0.12 155);          /* simulated-WhatsApp green #1F8A5B */
+  --wa: oklch(0.55 0.12 155);          /* simulated-WhatsApp green */
   --wa-foreground: oklch(0.985 0.01 155);
+  /* sky accent #3B82C4 for info/links */
+  --sky: oklch(0.58 0.13 240);
 }
 
 .dark {
-  --background: oklch(0.2 0.02 200);
-  --foreground: oklch(0.96 0.01 195);
-  --card: oklch(0.25 0.025 200);
-  --card-foreground: oklch(0.96 0.01 195);
-  --popover: oklch(0.25 0.025 200);
-  --popover-foreground: oklch(0.96 0.01 195);
-  --primary: oklch(0.7 0.08 195);
-  --primary-foreground: oklch(0.2 0.02 200);
-  --secondary: oklch(0.3 0.03 200);
-  --secondary-foreground: oklch(0.96 0.01 195);
-  --muted: oklch(0.3 0.03 200);
-  --muted-foreground: oklch(0.72 0.02 200);
-  --accent: oklch(0.3 0.03 200);
-  --accent-foreground: oklch(0.96 0.01 195);
-  --destructive: oklch(0.65 0.15 40);
+  --background: oklch(0.19 0.02 185);
+  --foreground: oklch(0.96 0.01 175);
+  --card: oklch(0.24 0.025 185);
+  --card-foreground: oklch(0.96 0.01 175);
+  --popover: oklch(0.24 0.025 185);
+  --popover-foreground: oklch(0.96 0.01 175);
+  --primary: oklch(0.72 0.09 172);
+  --primary-foreground: oklch(0.19 0.02 185);
+  --secondary: oklch(0.30 0.03 180);
+  --secondary-foreground: oklch(0.96 0.01 175);
+  --muted: oklch(0.30 0.03 180);
+  --muted-foreground: oklch(0.72 0.02 185);
+  --accent: oklch(0.30 0.03 180);
+  --accent-foreground: oklch(0.96 0.01 175);
+  --destructive: oklch(0.64 0.16 35);
   --destructive-foreground: oklch(0.985 0.01 90);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.7 0.08 195);
+  --ring: oklch(0.72 0.09 172);
   --given: oklch(0.65 0.12 155);
-  --given-foreground: oklch(0.2 0.02 155);
-  --booked: oklch(0.7 0.08 195);
-  --booked-foreground: oklch(0.2 0.02 200);
-  --planned: oklch(0.6 0.02 200);
-  --changed: oklch(0.78 0.13 75);
-  --changed-foreground: oklch(0.25 0.04 75);
-  --overdue: oklch(0.65 0.15 40);
+  --given-foreground: oklch(0.19 0.02 155);
+  --booked: oklch(0.72 0.09 172);
+  --booked-foreground: oklch(0.19 0.02 185);
+  --planned: oklch(0.62 0.02 200);
+  --changed: oklch(0.80 0.13 85);
+  --changed-foreground: oklch(0.25 0.04 85);
+  --overdue: oklch(0.64 0.16 35);
   --overdue-foreground: oklch(0.985 0.01 90);
   --wa: oklch(0.62 0.12 155);
-  --wa-foreground: oklch(0.2 0.02 155);
+  --wa-foreground: oklch(0.19 0.02 155);
 }
 
 @layer base {
@@ -134,5 +140,10 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-feature-settings: "tnum" 1;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 }
