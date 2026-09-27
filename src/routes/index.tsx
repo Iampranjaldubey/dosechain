@@ -4,7 +4,7 @@ import { useLang } from "@/lib/i18n";
 import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
 import heroImg from "@/assets/hero.jpg";
-import { Mascot, MascotSays, Doodles, Wave } from "@/components/Mascot";
+import { Doodles, Sticker, Wave } from "@/components/KidVibe";
 
 export const Route = createFileRoute("/")({
   head: () => ({
