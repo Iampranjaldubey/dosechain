@@ -1,7 +1,7 @@
 import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useLang } from "@/lib/i18n";
+import { useLang, fmtSlot } from "@/lib/i18n";
 import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
 import { getChildByToken } from "@/lib/parent.functions";
