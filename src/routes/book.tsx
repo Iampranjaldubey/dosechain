@@ -105,7 +105,7 @@ function BookPage() {
   const eligibleHistory = useMemo(() => {
     if (!data || !dob) return [];
     const ageD = diffDays(today, dob);
-    return data.catalogue.filter((d) => d.minAgeD <= ageD && d.recAgeD <= ageD + 14);
+    return data.catalogue.filter((d: (typeof data.catalogue)[number]) => d.minAgeD <= ageD && d.recAgeD <= ageD + 14);
   }, [data, dob, today]);
 
   // next 14 bookable OPD days
@@ -114,9 +114,9 @@ function BookPage() {
     const out: { date: string; slots: string[] }[] = [];
     for (let i = 0; i < 21 && out.length < 10; i++) {
       const d = addDays(today, i);
-      const wins = data.settings.opdHours[WEEKDAYS[dow(d)]] ?? [];
+      const wins = data.settings.opdHours[WEEKDAYS[dow(d)] ?? "sun"] ?? [];
       if (wins.length === 0 || eng.holidays.includes(d)) continue;
-      out.push({ date: d, slots: wins.map((w) => `${w[0]}–${w[1]}`) });
+      out.push({ date: d, slots: wins.map((w: [string, string]) => `${w[0]}–${w[1]}`) });
     }
     return out;
   }, [data, eng, today]);
