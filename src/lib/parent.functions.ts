@@ -338,3 +338,117 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
       clinic: settings,
     };
   });
+
+// ---------- parent onboarding: create guardian + first child, then book ----------
+
+const startInput = z.object({
+  childName: z.string().min(1).max(80),
+  dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  sex: z.enum(["girl", "boy"]),
+  history: z.array(z.object({ code: z.string(), givenOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), where: z.enum(["clinic", "govt"]) })),
+  parentName: z.string().min(1).max(80),
+  phone: z.string().min(8).max(15),
+  lang: z.enum(["en", "hi"]),
+});
+
+export const startChild = createServerFn({ method: "POST" })
+  .inputValidator((data) => startInput.parse(data))
+  .handler(async ({ data }) => {
+    const a = await admin();
+    const { cat, settings } = await loadCatalogueAndSettings();
+    const today = todayIst(await nowIso());
+    const catalogue = cat.map(toDoseDef);
+    const eng = engineSettings(settings);
+    const history: GivenDose[] = data.history.map((h) => ({ code: h.code, givenOn: h.givenOn }));
+    const plan = buildPlan(data.dob, history, catalogue, eng, today);
+
+    let guardianId: string;
+    const { data: existing } = await a.from("guardians").select("id").eq("phone", data.phone).maybeSingle();
+    if (existing) {
+      guardianId = existing.id;
+      await a.from("guardians").update({ name: data.parentName, lang: data.lang }).eq("id", guardianId);
+    } else {
+      const { data: g, error } = await a.from("guardians").insert({ name: data.parentName, phone: data.phone, lang: data.lang }).select("id").single();
+      if (error || !g) throw new Error("Could not create parent record");
+      guardianId = g.id;
+    }
+
+    const token = crypto.randomUUID();
+    const { data: child, error: childErr } = await a
+      .from("children")
+      .insert({ guardian_id: guardianId, name: data.childName, dob: data.dob, sex: data.sex, public_token: token, clinic_id: settings.clinic_id })
+      .select("id")
+      .single();
+    if (childErr || !child) throw new Error("Could not create child record");
+
+    const whereByCode = new Map(data.history.map((h) => [h.code, h.where]));
+    const givenRows = data.history.map((h) => ({
+      child_id: child.id, code: h.code, status: "given" as const, due_date: h.givenOn, given_on: h.givenOn, where_given: whereByCode.get(h.code) ?? "clinic",
+    }));
+    if (givenRows.length > 0) await a.from("child_doses").insert(givenRows);
+
+    const plannedRows = plan.flatMap((v: PlannedVisit) =>
+      v.doses.map((code) => ({ child_id: child.id, code, status: "planned" as const, due_date: v.date })),
+    );
+    if (plannedRows.length > 0) await a.from("child_doses").insert(plannedRows);
+
+    return { token, childId: child.id };
+  });
+
+// ---------- book the next visit for an existing child (token-scoped) ----------
+
+export const bookForChild = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({ token: z.string().min(3).max(80), slotDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), slotLabel: z.string().min(1).max(40) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const a = await admin();
+    const { data: child } = await a
+      .from("children")
+      .select("id, name, guardian_id, clinic_id, guardians(name, lang)")
+      .eq("public_token", data.token)
+      .maybeSingle();
+    if (!child) throw new Error("Child link not found");
+
+    // earliest planned visit group (doses sharing the same due_date)
+    const { data: planned } = await a
+      .from("child_doses")
+      .select("id, code, due_date")
+      .eq("child_id", child.id)
+      .eq("status", "planned")
+      .order("due_date");
+    const rows = (planned ?? []) as { id: string; code: string; due_date: string | null }[];
+    const firstDate = rows.find((r) => r.due_date)?.due_date;
+    if (!firstDate) throw new Error("No upcoming doses to book");
+    const group = rows.filter((r) => r.due_date === firstDate);
+
+    const { data: visit, error: vErr } = await a
+      .from("visits")
+      .insert({
+        kind: "vaccine",
+        child_id: child.id,
+        clinic_id: child.clinic_id,
+        day: data.slotDate,
+        starts_at: `${data.slotDate}T${data.slotLabel.split("–")[0]}:00+05:30`,
+        slot_label: data.slotLabel,
+        status: "booked",
+      })
+      .select("id")
+      .single();
+    if (vErr || !visit) throw new Error("Could not create visit");
+
+    await a
+      .from("child_doses")
+      .update({ status: "booked", due_date: data.slotDate, visit_id: visit.id })
+      .in("id", group.map((g) => g.id));
+
+    const when = new Date(data.slotDate + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+    const whenHi = new Date(data.slotDate + "T00:00:00Z").toLocaleDateString("hi-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+    await a.from("messages").insert({
+      guardian_id: child.guardian_id, direction: "out", kind: "booking_confirm", status: "sent", sent_at: new Date().toISOString(), visit_id: visit.id, clinic_id: child.clinic_id,
+      body_en: `You're booked! ${child.name}'s vaccines: ${when}, ${data.slotLabel}. We'll remind you the day before. Reply here anytime — e.g. if your child is unwell.`,
+      body_hi: `बुकिंग पक्की! ${child.name} के टीके: ${whenHi}, ${data.slotLabel}। एक दिन पहले याद दिलाएंगे। बच्चा बीमार हो तो यहीं लिखें।`,
+      quick_replies: ["OK 👍", "Change date / तारीख बदलें"],
+    });
+    return { visitId: visit.id, childToken: data.token };
+  });
