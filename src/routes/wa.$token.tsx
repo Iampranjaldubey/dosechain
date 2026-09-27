@@ -126,7 +126,7 @@ function Chat() {
           </div>
         )}
         <form onSubmit={(e) => { e.preventDefault(); submit(text); }} className="flex gap-2 border-t border-border bg-card p-3">
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder={lang === "hi" ? "संदेश लिखें… (जैसे: बच्चे को बुखार है)" : "Type a message… (e.g. baby has fever)"} className="flex-1 rounded-full border border-input bg-background px-4 py-2.5" aria-label="Message" />
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder={lang === "hi" ? "संदेश लिखें… (जैसे: बच्चे को बुखार है)" : "Type a message… (e.g. baby has fever)"} className="min-w-0 flex-1 rounded-full border border-input bg-background px-4 py-2.5" aria-label="Message" />
           <button type="button" onClick={toggleRec} disabled={voice.isPending} aria-label={rec ? "Stop recording" : "Record voice note"} className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-full text-lg", rec ? "animate-pulse bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground")}>
             {rec ? "■" : "🎤"}
           </button>
