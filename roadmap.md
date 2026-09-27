@@ -29,6 +29,6 @@
 - [ ] Multi-clinic wiring (in progress): clinic.functions/followup/parent.functions clinic-scoped; clinic-context + clinic.tsx membership UI (join/create); dashboard/approvals/capacity use active clinic; verify build + UAT
 - [x] Hero: remove blob section, thick sticker border around hero image (user request)
 
-- [ ] Input validation sweep: phone numbers exactly 10 digits (Indian mobile), other length/format limits across all forms + server
-- [ ] Child Health Passport (in progress)
-- [ ] Hero image: revert to original thick rounded border
+- [x] Input validation sweep: phone numbers exactly 10 digits (Indian mobile), other length/format limits across all forms + server
+- [x] Child Health Passport (in progress)
+- [x] Hero image: revert to original thick rounded border

@@ -123,7 +123,7 @@ function Index() {
         </Reveal>
         <Reveal delay={150}>
           <div className="relative">
-            <div className="blob-soft absolute -inset-5 -z-10 bg-secondary/70" aria-hidden />
+            <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-secondary/50" aria-hidden />
             <div className="absolute -right-2 -top-8 z-10 sm:-right-6 sm:-top-10">
               <Sticker>{t.stickerHero}</Sticker>
             </div>
