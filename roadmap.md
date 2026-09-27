@@ -10,4 +10,4 @@
 - [ ] Theme decision: user wants to co-decide frontend theme (palette, fonts, layout energy) via questions before screens are built
 
 ## UX overhaul (user feedback Sep 27)
-- [ ] Landing page feels basic/generic — do UX engineering: real-website feel, richer sections, motion, hierarchy (keep locked Fresh Mint theme + fonts)
+- [x] Landing page feels basic/generic — do UX engineering: real-website feel, richer sections, motion, hierarchy (keep locked Fresh Mint theme + fonts)
