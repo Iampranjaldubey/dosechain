@@ -1,3 +1,5 @@
+import { PhoneInput } from "@/components/PhoneInput";
+import { isValidMobile } from "@/lib/validation";
 import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -38,7 +40,7 @@ function StartPage() {
   const today = new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
 
   const valid =
-    childName.trim().length > 0 && dob !== "" && dob <= today && parentName.trim().length > 0 && phone.trim().length >= 8;
+    childName.trim().length > 0 && dob !== "" && dob <= today && parentName.trim().length > 0 && isValidMobile(phone);
 
   async function go() {
     setBusy(true);
@@ -51,7 +53,7 @@ function StartPage() {
           sex,
           history: [],
           parentName: parentName.trim(),
-          phone: phone.trim(),
+          phone: `+91${phone}`,
           lang,
         },
       });
@@ -81,24 +83,20 @@ function StartPage() {
           <Field label={t.parentName}>
             <input
               value={parentName}
+                  maxLength={80}
               onChange={(e) => setParentName(e.target.value)}
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring"
             />
           </Field>
           <Field label={t.parentPhone}>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              inputMode="tel"
-              placeholder="+91 …"
-              className="w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring"
-            />
+            <PhoneInput value={phone} onChange={setPhone} required />
           </Field>
 
           <p className="pt-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">{t.stepChild}</p>
           <Field label={t.childName}>
             <input
               value={childName}
+                  maxLength={80}
               onChange={(e) => setChildName(e.target.value)}
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring"
               placeholder="Aarav"

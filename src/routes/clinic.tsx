@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Footprint";
 import { whoAmI, listJoinableClinics, requestJoinClinic, createClinic } from "@/lib/clinic.functions";
+import { PhoneInput } from "@/components/PhoneInput";
 import { ClinicContext, type ActiveClinic } from "@/lib/clinic-context";
 
 export const Route = createFileRoute("/clinic")({
@@ -138,7 +139,7 @@ function NoClinic({ email }: { email: string }) {
     onError: (e) => toast.error((e as Error).message),
   });
   const create = useMutation({
-    mutationFn: () => createClinic({ data: { name: name.trim(), city: city.trim() || null, phone: phone.trim() || null } }),
+    mutationFn: () => createClinic({ data: { name: name.trim(), city: city.trim() || null, phone: phone ? `+91${phone}` : null } }),
     onSuccess: () => {
       toast.success("Clinic created — you are its doctor.");
       void qc.invalidateQueries({ queryKey: ["me"] });
@@ -190,13 +191,14 @@ function NoClinic({ email }: { email: string }) {
           <div className="mt-4 space-y-3">
             <input
               value={name}
+              maxLength={120}
               onChange={(e) => setName(e.target.value)}
               placeholder="Clinic name (e.g. Nanhe Kadam Child Clinic)"
               className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"
             />
             <div className="grid gap-3 sm:grid-cols-2">
-              <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City / area" className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm" />
-              <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm" />
+              <input maxLength={80} value={city} onChange={(e) => setCity(e.target.value)} placeholder="City / area" className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm" />
+              <PhoneInput value={phone} onChange={setPhone} />
             </div>
             <button
               onClick={() => create.mutate()}
