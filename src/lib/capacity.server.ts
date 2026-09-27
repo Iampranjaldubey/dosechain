@@ -36,7 +36,7 @@ QUICK WINS THIS WEEK
 Each list item on its own line starting with "- ". Be concrete (days, times, numbers). Respect stated constraints. Never suggest changing vaccine schedules or clinical intervals.`;
 
 export async function handleCapacity(request: Request) {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return new Response("AI is not configured.", { status: 500 });
 
   let input: z.infer<typeof CapacityInput>;
