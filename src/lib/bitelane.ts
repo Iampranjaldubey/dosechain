@@ -66,7 +66,7 @@ export function rescheduleMissedDose(
     const date = addDays(d.date, shift);
     const dayWins = windows[dow(date)] ?? [];
     const window: [string, string] | null =
-      d.offset === 0 ? null : dayWins.length > 0 ? dayWins[0] : null;
+      d.offset === 0 ? null : (dayWins[0] ?? null);
     return {
       ...d,
       date,

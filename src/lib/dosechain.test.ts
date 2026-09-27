@@ -84,7 +84,7 @@ describe("dosechain engine", () => {
     const tenWeekIdx = plan.findIndex((v) => v.doses.includes("DTP2"));
     const fluBefore = plan.find((v) => v.doses.includes("FLU1"))!.date;
 
-    const res = reshuffle(dob, history, plan, tenWeekIdx, addDays(plan[tenWeekIdx].date, 7), CAT, SETTINGS, today);
+    const res = reshuffle(dob, history, plan, tenWeekIdx, addDays(plan[tenWeekIdx]!.date, 7), CAT, SETTINGS, today);
     const visitOf = (code: string) => res.visits.find((v) => v.doses.includes(code))!;
     expect(diffDays(visitOf("DTP3").date, visitOf("DTP2").date)).toBeGreaterThanOrEqual(28);
     expect(visitOf("FLU1").date).toBe(fluBefore);
