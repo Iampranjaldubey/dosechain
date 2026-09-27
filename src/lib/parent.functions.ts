@@ -61,7 +61,7 @@ function engineSettings(s: SettingsRow): EngineSettings {
 
 function toDoseDef(r: {
   code: string;
-  series: string;
+  series: string | null;
   rec_age_d: number;
   min_age_d: number;
   min_gap_prev_d: number | null;
@@ -69,7 +69,7 @@ function toDoseDef(r: {
 }): DoseDef {
   return {
     code: r.code,
-    series: r.series,
+    series: r.series ?? r.code,
     recAgeD: r.rec_age_d,
     minAgeD: r.min_age_d,
     minGapPrevD: r.min_gap_prev_d,
