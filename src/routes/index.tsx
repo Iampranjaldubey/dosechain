@@ -123,6 +123,7 @@ function Index() {
         </Reveal>
         <Reveal delay={150}>
           <div className="relative">
+            <div className="blob-soft absolute -inset-5 -z-10 bg-secondary/70" aria-hidden />
             <div className="absolute -right-2 -top-8 z-10 sm:-right-6 sm:-top-10">
               <Sticker>{t.stickerHero}</Sticker>
             </div>
@@ -131,7 +132,7 @@ function Index() {
               alt="A mother carrying her baby along a trail of footprints toward Nanhe Kadam Child Clinic"
               width={1024}
               height={1024}
-              className="w-full rounded-[2.25rem] border-[6px] border-card bg-card p-2 shadow-xl ring-4 ring-secondary/60"
+              className="w-full rounded-3xl border border-border shadow-xl"
             />
             {/* floating next-visit card */}
             <div className="absolute bottom-4 left-4 flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-lg sm:-bottom-5 sm:left-5">
