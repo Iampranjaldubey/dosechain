@@ -18,8 +18,8 @@ export function todayIst(iso: string): string {
   return new Date(new Date(iso).getTime() + 5.5 * 3600_000).toISOString().slice(0, 10);
 }
 
-async function loadSettings(a: Db) {
-  const { data } = await a.from("clinic_settings").select("*").eq("id", 1).single();
+export async function loadSettings(a: Db, clinicId: string) {
+  const { data } = await a.from("clinic_settings").select("*").eq("clinic_id", clinicId).single();
   const s = data as any;
   const opdDays: number[] = [];
   const bite: BiteWindows = {};
