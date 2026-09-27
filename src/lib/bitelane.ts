@@ -39,7 +39,7 @@ export function planBiteCourse(
       return { offset: off, date, window: null, flag: "extra_window_needed" as const };
     }
     const win = prefer === "evening" ? dayWins[dayWins.length - 1] : dayWins[0];
-    return { offset: off, date, window: win };
+    return { offset: off, date, window: win ?? null };
   });
 }
 
