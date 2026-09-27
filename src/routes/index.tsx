@@ -68,7 +68,7 @@ function Index() {
           </nav>
           <div className="flex items-center gap-2">
             <LangToggle />
-            <Link to="/start" className="hidden min-h-10 items-center rounded-full px-3 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground sm:inline-flex sm:text-sm">
+            <Link to="/family" className="hidden min-h-10 items-center rounded-full px-3 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground sm:inline-flex sm:text-sm">
               {t.returningTitle}
             </Link>
             <Link
@@ -99,7 +99,7 @@ function Index() {
               {t.bookVaccine}
             </Link>
             <Link
-              to="/start"
+              to="/family"
               className="inline-flex min-h-12 items-center rounded-full border-2 border-border px-7 text-base font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:bg-secondary"
             >
               {t.returningTitle}

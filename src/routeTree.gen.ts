@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as ClinicRouteImport } from './routes/clinic'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as FamilyRouteImport } from './routes/family'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as ApiCapacityAnalysisRouteImport } from './routes/api/capacity-analysis'
 import { Route as BTokenRouteImport } from './routes/b/$token'
@@ -55,6 +56,11 @@ const ClinicRoute = ClinicRouteImport.update({
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilyRoute = FamilyRouteImport.update({
+  id: '/family',
+  path: '/family',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StartRoute = StartRouteImport.update({
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/book': typeof BookRoute
   '/clinic': typeof ClinicRouteWithChildren
   '/demo': typeof DemoRoute
+  '/family': typeof FamilyRoute
   '/start': typeof StartRoute
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/book': typeof BookRoute
   '/demo': typeof DemoRoute
+  '/family': typeof FamilyRoute
   '/start': typeof StartRoute
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/book': typeof BookRoute
   '/clinic': typeof ClinicRouteWithChildren
   '/demo': typeof DemoRoute
+  '/family': typeof FamilyRoute
   '/start': typeof StartRoute
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/clinic'
     | '/demo'
+    | '/family'
     | '/start'
     | '/api/capacity-analysis'
     | '/b/$token'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/book'
     | '/demo'
+    | '/family'
     | '/start'
     | '/api/capacity-analysis'
     | '/b/$token'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/clinic'
     | '/demo'
+    | '/family'
     | '/start'
     | '/api/capacity-analysis'
     | '/b/$token'
@@ -295,6 +307,7 @@ export interface RootRouteChildren {
   BookRoute: typeof BookRoute
   ClinicRoute: typeof ClinicRouteWithChildren
   DemoRoute: typeof DemoRoute
+  FamilyRoute: typeof FamilyRoute
   StartRoute: typeof StartRoute
   ApiCapacityAnalysisRoute: typeof ApiCapacityAnalysisRoute
   BTokenRoute: typeof BTokenRoute
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/demo'
       fullPath: '/demo'
       preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family': {
+      id: '/family'
+      path: '/family'
+      fullPath: '/family'
+      preLoaderRoute: typeof FamilyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/start': {
@@ -495,6 +515,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookRoute: BookRoute,
   ClinicRoute: ClinicRouteWithChildren,
   DemoRoute: DemoRoute,
+  FamilyRoute: FamilyRoute,
   StartRoute: StartRoute,
   ApiCapacityAnalysisRoute: ApiCapacityAnalysisRoute,
   BTokenRoute: BTokenRoute,
