@@ -263,7 +263,7 @@ function BookPage() {
             <div>
               <p className="text-sm text-muted-foreground">{t.historyHint}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {eligibleHistory.map((d) => {
+                {eligibleHistory.map((d: (typeof data.catalogue)[number]) => {
                   const checked = history.some((h) => h.code === d.code);
                   return (
                     <label
@@ -337,7 +337,7 @@ function BookPage() {
                         <p className="mt-0.5 text-sm text-muted-foreground">
                           {v.doses
                             .map((c) => {
-                              const d = data.catalogue.find((x) => x.code === c);
+                              const d = data.catalogue.find((x: (typeof data.catalogue)[number]) => x.code === c);
                               return d ? (lang === "hi" ? d.labelHi : d.labelEn) : c;
                             })
                             .join(" · ")}

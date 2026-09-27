@@ -57,7 +57,7 @@ function ChildPage() {
     byDate.get(key)!.push(d);
   }
   const groups = [...byDate.entries()].sort(([a], [b]) => a.localeCompare(b));
-  const nextVisit = data.visits.find((v) => v.status === "booked" || v.status === "confirmed");
+  const nextVisit = data.visits.find((v: (typeof data.visits)[number]) => v.status === "booked" || v.status === "confirmed");
 
   const statusStyle: Record<string, string> = {
     given: "bg-given/15 text-given",
@@ -117,12 +117,12 @@ function ChildPage() {
                 <div className="flex-1 pt-1">
                   <p className="text-sm font-semibold">{fmtDate(date, lang)}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
-                    {doses.map((d) => (
+                    {doses.map((d: (typeof data.doses)[number]) => (
                       <span
                         key={d.code}
                         className={cn(
                           "rounded-full px-2.5 py-1 text-xs font-semibold",
-                          statusStyle[d.status] ?? statusStyle.planned,
+                          statusStyle[d.status] ?? statusStyle["planned"],
                         )}
                       >
                         {data.catalogue[d.code]
