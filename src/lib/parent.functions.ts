@@ -77,14 +77,23 @@ function toDoseDef(r: {
   };
 }
 
-async function loadCatalogueAndSettings() {
+/** Default clinic = the first clinic row (public parent flows are single-clinic today). */
+async function defaultClinicId(): Promise<string> {
   const a = await admin();
+  const { data } = await a.from("clinic_settings").select("clinic_id").limit(1).maybeSingle();
+  if (!data) throw new Error("Clinic configuration missing");
+  return data.clinic_id as string;
+}
+
+async function loadCatalogueAndSettings(clinicId?: string) {
+  const a = await admin();
+  const cid = clinicId ?? (await defaultClinicId());
   const [{ data: cat }, { data: settings }] = await Promise.all([
     a.from("vaccine_doses").select("*").order("sort"),
-    a.from("clinic_settings").select("*").eq("id", 1).single(),
+    a.from("clinic_settings").select("*").eq("clinic_id", cid).single(),
   ]);
   if (!cat || !settings) throw new Error("Clinic configuration missing");
-  return { cat, settings: settings as unknown as SettingsRow & { id: number } };
+  return { cat, settings: settings as unknown as SettingsRow & { clinic_id: string } };
 }
 
 // ---------- public catalogue for the booking wizard ----------
@@ -162,6 +171,7 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     const token = crypto.randomUUID();
+    const clinicId = settings.clinic_id;
     const { data: child, error: childErr } = await a
       .from("children")
       .insert({
@@ -170,6 +180,7 @@ export const createBooking = createServerFn({ method: "POST" })
         dob: data.dob,
         sex: data.sex,
         public_token: token,
+        clinic_id: clinicId,
       })
       .select("id")
       .single();
@@ -196,6 +207,7 @@ export const createBooking = createServerFn({ method: "POST" })
         .insert({
           kind: "vaccine",
           child_id: child.id,
+          clinic_id: settings.clinic_id,
           day: data.slotDate,
           starts_at: `${data.slotDate}T${data.slotLabel.split("–")[0]}:00+05:30`,
           slot_label: data.slotLabel,
@@ -232,7 +244,7 @@ export const createBooking = createServerFn({ method: "POST" })
       const when = new Date(data.slotDate + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
       const whenHi = new Date(data.slotDate + "T00:00:00Z").toLocaleDateString("hi-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
       await a.from("messages").insert({
-        guardian_id: guardianId, direction: "out", kind: "booking_confirm", status: "sent", sent_at: new Date().toISOString(), visit_id: visitId,
+        guardian_id: guardianId, direction: "out", kind: "booking_confirm", status: "sent", sent_at: new Date().toISOString(), visit_id: visitId, clinic_id: settings.clinic_id,
         body_en: `You're booked! ${data.childName}'s vaccines: ${when}, ${data.slotLabel}. We'll remind you the day before. Reply here anytime — e.g. if your child is unwell.`,
         body_hi: `बुकिंग पक्की! ${data.childName} के टीके: ${whenHi}, ${data.slotLabel}। एक दिन पहले याद दिलाएंगे। बच्चा बीमार हो तो यहीं लिखें।`,
         quick_replies: ["OK 👍", "Change date / तारीख बदलें"],
@@ -250,7 +262,7 @@ export const getChildByToken = createServerFn({ method: "GET" })
     const a = await admin();
     const { data: child } = await a
       .from("children")
-      .select("id, name, dob, sex")
+      .select("id, name, dob, sex, clinic_id")
       .eq("public_token", data.token)
       .maybeSingle();
     if (!child) return null;
@@ -260,7 +272,7 @@ export const getChildByToken = createServerFn({ method: "GET" })
         a.from("child_doses").select("*").eq("child_id", child.id).order("due_date"),
         a.from("visits").select("*").eq("child_id", child.id).order("day"),
         a.from("vaccine_doses").select("code, label_en, label_hi, rec_age_d"),
-        a.from("clinic_settings").select("clinic_name, doctor_name, city, phone").eq("id", 1).single(),
+        a.from("clinic_settings").select("clinic_name, doctor_name, city, phone").eq("clinic_id", child.clinic_id).single(),
       ]);
 
     return {
@@ -294,7 +306,7 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
     const a = await admin();
     const { data: bc } = await a
       .from("bite_cases")
-      .select("id, patient_name, category, animal, bitten_on, regimen, status")
+      .select("id, patient_name, category, animal, bitten_on, regimen, status, clinic_id")
       .eq("public_token", data.token)
       .maybeSingle();
     if (!bc) return null;
@@ -302,7 +314,7 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
     const [{ data: doses }, { data: regimens }, { data: settings }] = await Promise.all([
       a.from("bite_doses").select("*").eq("bite_case_id", bc.id).order("day_offset"),
       a.from("rabies_regimens").select("code, label_en, label_hi, route"),
-      a.from("clinic_settings").select("clinic_name, phone, city, bite_windows").eq("id", 1).single(),
+      a.from("clinic_settings").select("clinic_name, phone, city, bite_windows").eq("clinic_id", bc.clinic_id).single(),
     ]);
     const regimen = ((regimens ?? []) as { code: string; label_en: string; label_hi: string; route: string }[]).find((r) => r.code === bc.regimen);
 
