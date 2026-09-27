@@ -22,6 +22,7 @@ export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebro
           <nav className="ml-auto flex items-center gap-1 text-sm">
             <Link to="/start" className="hidden rounded-full px-3 py-2 font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex">{hi ? "टीका बुक करें" : "Book"}</Link>
             <a href="/#bite" className="hidden rounded-full px-3 py-2 font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex">{hi ? "कुत्ते ने काटा?" : "Bite help"}</a>
+            <Link to="/family" className="rounded-full px-3 py-2 font-semibold text-primary hover:bg-muted">{hi ? "पैरेंट लॉगिन" : "Parent login"}</Link>
             <LangToggle />
           </nav>
         </div>

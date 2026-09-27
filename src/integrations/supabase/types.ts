@@ -669,6 +669,35 @@ export type Database = {
           },
         ]
       }
+      parent_links: {
+        Row: {
+          created_at: string
+          guardian_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          guardian_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          guardian_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_links_guardian_id_fkey"
+            columns: ["guardian_id"]
+            isOneToOne: false
+            referencedRelation: "guardians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount_inr: number

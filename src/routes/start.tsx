@@ -1,12 +1,12 @@
 import { PhoneInput } from "@/components/PhoneInput";
 import { isValidMobile } from "@/lib/validation";
 import { ParentShell } from "@/components/ParentShell";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import { LangToggle } from "@/components/LangToggle";
 import { Footprint } from "@/components/Footprint";
-import { findMyChildren, startChild } from "@/lib/parent.functions";
+import { startChild } from "@/lib/parent.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/start")({
@@ -146,63 +146,18 @@ function StartPage() {
 }
 
 function ReturningCard() {
-  const { t } = useLang();
-  const [phone, setPhone] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
-  const [kids, setKids] = useState<{ token: string; name: string; clinic: string }[] | null>(null);
-
-  async function find() {
-    setBusy(true);
-    try {
-      const res = await findMyChildren({ data: { phone: `+91${phone}` } });
-      setKids(res.children);
-      setDone(res.children.length > 0);
-    } catch {
-      setKids([]);
-    } finally {
-      setBusy(false);
-    }
-  }
-
+  const { lang } = useLang();
+  const hi = lang === "hi";
   return (
-    <div className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
-      <h2 className="font-display text-xl">{t.returningTitle}</h2>
-      <p className="text-sm text-muted-foreground">{t.returningSub}</p>
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="flex-1">
-          <PhoneInput value={phone} onChange={setPhone} required />
-        </div>
-        <button
-          type="button"
-          onClick={find}
-          disabled={!isValidMobile(phone) || busy}
-          className="min-h-11 rounded-full bg-secondary px-5 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 disabled:opacity-40"
-        >
-          {busy ? t.loading : t.returningCta}
-        </button>
-      </div>
-      {kids !== null && kids.length === 0 && <p className="text-sm font-semibold text-overdue">{t.returningNone}</p>}
-      {kids !== null && kids.length > 0 && (
-        <div className="space-y-2">
-          {kids.map((k) => (
-            <div key={k.token} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3">
-              <div>
-                <p className="text-sm font-bold">{k.name}</p>
-                {k.clinic && <p className="text-xs text-muted-foreground">{k.clinic}</p>}
-              </div>
-              <a href={`/c/${k.token}`} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
-                {t.returningView}
-              </a>
-            </div>
-          ))}
-          {done && <p className="text-xs text-muted-foreground">{t.returningSent}</p>}
-        </div>
-      )}
-    </div>
+    <Link to="/family" className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-6 hover:bg-secondary/40">
+      <span>
+        <span className="block font-display text-xl">{hi ? "पहले बुकिंग कर चुके हैं?" : "Booked with us before?"}</span>
+        <span className="text-sm text-muted-foreground">{hi ? "पैरेंट लॉगिन करें — सभी बच्चे, विज़िट और संदेश एक जगह।" : "Sign in to your parent account — all your children, visits and messages in one place."}</span>
+      </span>
+      <span className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{hi ? "लॉगिन" : "Parent login"}</span>
+    </Link>
   );
 }
-
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

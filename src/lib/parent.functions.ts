@@ -454,31 +454,3 @@ export const bookForChild = createServerFn({ method: "POST" })
     return { visitId: visit.id, childToken: data.token };
   });
 
-// ---------- returning parent: find children by WhatsApp number ----------
-export const findMyChildren = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ phone: z.string().regex(/^\+91[6-9]\d{9}$/) }).parse(d))
-  .handler(async ({ data }) => {
-    const a = await admin();
-    const { data: guardian } = await a.from("guardians").select("id, name, lang").eq("phone", data.phone).maybeSingle();
-    if (!guardian) return { children: [] as { token: string; name: string; clinic: string }[] };
-    const { data: kids } = await a
-      .from("children")
-      .select("name, public_token, clinic_id")
-      .eq("guardian_id", guardian.id)
-      .order("created_at");
-    const clinicIds = [...new Set((kids ?? []).map((k: any) => k.clinic_id as string))];
-    const { data: clinicRows } = clinicIds.length
-      ? await a.from("clinics").select("id, name").in("id", clinicIds)
-      : { data: [] as { id: string; name: string }[] };
-    const clinicName = new Map((clinicRows ?? []).map((c: any) => [c.id as string, c.name as string]));
-    const children = (kids ?? []).map((k: any) => ({ token: k.public_token as string, name: k.name as string, clinic: clinicName.get(k.clinic_id) ?? "", clinicId: k.clinic_id as string }));
-    if (children.length > 0) {
-      const links = children.map((c) => `• ${c.name}: /c/${c.token}`).join("\n");
-      await a.from("messages").insert({
-        guardian_id: guardian.id, direction: "out", kind: "parent_links", status: "sent", sent_at: new Date().toISOString(), clinic_id: children[0]!.clinicId,
-        body_en: `Namaste ${guardian.name}! Here are your children's DoseChain links:\n${links}`,
-        body_hi: `नमस्ते ${guardian.name}! आपके बच्चों के DoseChain लिंक:\n${links}`,
-      });
-    }
-    return { children };
-  });
