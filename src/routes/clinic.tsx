@@ -28,6 +28,7 @@ const NAV = [
   { to: "/clinic/approvals", label: "Approvals", hint: "Plan changes & staff" },
   { to: "/clinic/messages", label: "Replies", hint: "Parent messages" },
   { to: "/clinic/capacity", label: "Capacity", hint: "AI bottleneck check" },
+  { to: "/clinic/settings", label: "Settings", hint: "Team, hours, holidays" },
 ] as const;
 
 const STORE_KEY = "dc-active-clinic";
