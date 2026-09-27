@@ -470,7 +470,7 @@ export const findMyChildren = createServerFn({ method: "POST" })
     if (children.length > 0) {
       const links = children.map((c) => `• ${c.name}: /c/${c.token}`).join("\n");
       await a.from("messages").insert({
-        guardian_id: guardian.id, direction: "out", kind: "parent_links", status: "sent", sent_at: new Date().toISOString(), clinic_id: children[0].clinicId,
+        guardian_id: guardian.id, direction: "out", kind: "parent_links", status: "sent", sent_at: new Date().toISOString(), clinic_id: children[0]!.clinicId,
         body_en: `Namaste ${guardian.name}! Here are your children's DoseChain links:\n${links}`,
         body_hi: `नमस्ते ${guardian.name}! आपके बच्चों के DoseChain लिंक:\n${links}`,
       });
