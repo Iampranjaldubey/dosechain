@@ -50,8 +50,11 @@ export const requestJoinClinic = createServerFn({ method: "POST" })
 
 export const listStaffRequests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data } = await (context.supabase as any).from("staff_requests").select("user_id, email, created_at").order("created_at");
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid().optional() }).optional().parse(d))
+  .handler(async ({ data: input, context }) => {
+    let q = (context.supabase as any).from("staff_requests").select("user_id, email, created_at").neq("user_id", context.userId).order("created_at");
+    if (input?.clinicId) q = q.eq("clinic_id", input.clinicId);
+    const { data } = await q;
     return (data ?? []) as { user_id: string; email: string | null; created_at: string }[];
   });
 
