@@ -4,12 +4,43 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export interface Membership { clinicId: string; clinicName: string; role: string }
+
 export const whoAmI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await context.supabase.rpc("claim_doctor_if_none");
-    const { data } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
-    return { roles: ((data ?? []) as { role: string }[]).map((r) => r.role), email: (context.claims as any)?.email ?? "" };
+    const { data } = await (context.supabase as any)
+    const memberships: Membership[] = ((data ?? []) as any[]).map((r) => ({
+      clinicId: r.clinic_id,
+      clinicName: r.clinics?.name ?? "Clinic",
+      role: r.role,
+    }));
+    return { memberships, email: (context.claims as any)?.email ?? "" };
+  });
+
+export const createClinic = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ name: z.string().min(2).max(120), city: z.string().max(80).optional(), phone: z.string().max(20).optional() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: cid, error } = await (context.supabase as any).rpc("create_clinic", { _name: data.name, _city: data.city ?? "", _phone: data.phone ?? "" });
+    if (error) throw new Error(error.message);
+    return { clinicId: cid as string };
+  });
+
+export const listJoinableClinics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await (context.supabase as any).from("clinics").select("id, name, city").order("name");
+    return (data ?? []) as { id: string; name: string; city: string | null }[];
+  });
+
+export const requestJoinClinic = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as any).rpc("request_join_clinic", { _clinic: data.clinicId });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const listStaffRequests = createServerFn({ method: "POST" })
@@ -19,11 +50,20 @@ export const listStaffRequests = createServerFn({ method: "POST" })
     return (data ?? []) as { user_id: string; email: string | null; created_at: string }[];
   });
 
+export const listClinicStaff = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows } = await (context.supabase as any)
+      .from("user_roles").select("user_id, role").eq("clinic_id", data.clinicId).order("role");
+    return (rows ?? []) as { user_id: string; role: string }[];
+  });
+
 export const approveStaff = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid(), approve: z.boolean() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid(), userId: z.string().uuid(), approve: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { error } = await (context.supabase as any).rpc("approve_staff", { _user_id: data.userId, _approve: data.approve });
+    const { error } = await (context.supabase as any).rpc("approve_staff", { _user_id: data.userId, _clinic: data.clinicId, _approve: data.approve });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
