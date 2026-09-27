@@ -16,3 +16,6 @@
 ## Differentiation (user, Sep 27)
 - [ ] Research + engineer high-value features that win the challenge (multi-agent research → plan → build)
 - [ ] Enable email sign-up for staff (currently disabled — blocks clinic login + UAT)
+- [x] Staff-only clinic: login required + real staff role check for /clinic and /clinic/capacity
+- [x] Every booking creates a WhatsApp thread (confirmation message) + reminder sweep picks it up
+- [x] Dashboard: Today, recall list, vials used, watchdog — real data

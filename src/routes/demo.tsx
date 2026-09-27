@@ -16,12 +16,12 @@ export const Route = createFileRoute("/demo")({
 });
 
 const STEPS = [
-  { title: "Book once, plan for years", body: "Open the booking flow and enter a baby's date of birth — DoseChain plans the whole series.", link: "/book", label: "Open booking" },
-  { title: "Reminder goes out", body: "On the clinic desk press “Run reminders & watchdog”. Aarav's parent gets tomorrow's reminder in the phone on the right.", link: "/clinic", label: "Open clinic desk" },
-  { title: "“Bachhe ko bukhar hai”", body: "In the phone, tap “Fever / बुखार है” or type in Hindi. AI reads it and proposes a safe new date.", link: null, label: "" },
-  { title: "Doctor confirms", body: "The doctor sees the whole reshuffled chain with every interval checked, and approves in one tap.", link: "/clinic/approvals", label: "Open approvals" },
-  { title: "Missed rabies dose rescued", body: "Imran missed his day-7 dose. The watchdog messages him and shifts later doses, keeping the gaps.", link: "/wa/demo-bite-imran", label: "Imran's chat" },
-  { title: "Time saved", body: "The impact card on the desk counts recall calls and manual re-plans the clinic no longer does.", link: "/clinic", label: "See impact" },
+  { title: "A missed rabies dose can kill", body: "57% of Indian bite patients never finish their course. Imran missed day-7 — press “Run reminders & watchdog” on the desk and watch the rescue message land.", link: "/wa/demo-bite-imran", label: "Imran's chat" },
+  { title: "Snap the old card, get years of plan", body: "In booking, photograph a paper vaccine card — AI fills past doses, the parent confirms, the whole series is planned.", link: "/book", label: "Open booking" },
+  { title: "“Bachhe ko bukhar hai”", body: "In the phone, tap Fever, type Hinglish, or send a voice note. AI understands and proposes a safe new date. Tap ▶ Listen to hear reminders read aloud.", link: null, label: "" },
+  { title: "Doctor confirms in one tap", body: "The morning briefing and no-show radar tell the doctor what matters. Approvals show the reshuffled chain with every gap checked.", link: "/clinic/approvals", label: "Open approvals" },
+  { title: "Pay, confirm, prove", body: "Parents pay by UPI to lock the visit, and get a QR certificate schools can verify.", link: "/f/demo-aarav", label: "Family & pay" },
+  { title: "Time saved", body: "Nudges replace recall calls; the desk counts every minute the clinic got back.", link: "/clinic", label: "See impact" },
 ] as const;
 
 function Demo() {

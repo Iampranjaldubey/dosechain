@@ -333,10 +333,12 @@ export type Database = {
       }
       messages: {
         Row: {
+          audio_url: string | null
           body_en: string | null
           body_hi: string | null
           created_at: string | null
           direction: string | null
+          draft_reply: Json | null
           guardian_id: string | null
           id: string
           kind: string | null
@@ -348,10 +350,12 @@ export type Database = {
           visit_id: string | null
         }
         Insert: {
+          audio_url?: string | null
           body_en?: string | null
           body_hi?: string | null
           created_at?: string | null
           direction?: string | null
+          draft_reply?: Json | null
           guardian_id?: string | null
           id?: string
           kind?: string | null
@@ -363,10 +367,12 @@ export type Database = {
           visit_id?: string | null
         }
         Update: {
+          audio_url?: string | null
           body_en?: string | null
           body_hi?: string | null
           created_at?: string | null
           direction?: string | null
+          draft_reply?: Json | null
           guardian_id?: string | null
           id?: string
           kind?: string | null
@@ -383,6 +389,41 @@ export type Database = {
             columns: ["guardian_id"]
             isOneToOne: false
             referencedRelation: "guardians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount_inr: number
+          created_at: string | null
+          id: string
+          method: string | null
+          ref: string | null
+          visit_id: string | null
+        }
+        Insert: {
+          amount_inr: number
+          created_at?: string | null
+          id?: string
+          method?: string | null
+          ref?: string | null
+          visit_id?: string | null
+        }
+        Update: {
+          amount_inr?: number
+          created_at?: string | null
+          id?: string
+          method?: string | null
+          ref?: string | null
+          visit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "visits"
             referencedColumns: ["id"]
           },
         ]
@@ -462,6 +503,24 @@ export type Database = {
           label_hi?: string | null
           rig_for_cat3?: boolean | null
           route?: string | null
+        }
+        Relationships: []
+      }
+      staff_requests: {
+        Row: {
+          created_at: string
+          email: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -580,8 +639,10 @@ export type Database = {
           child_id: string | null
           created_at: string | null
           day: string
+          fee_inr: number | null
           id: string
           kind: string
+          paid_at: string | null
           slot_label: string | null
           starts_at: string | null
           status: Database["public"]["Enums"]["visit_status"]
@@ -592,8 +653,10 @@ export type Database = {
           child_id?: string | null
           created_at?: string | null
           day: string
+          fee_inr?: number | null
           id?: string
           kind: string
+          paid_at?: string | null
           slot_label?: string | null
           starts_at?: string | null
           status?: Database["public"]["Enums"]["visit_status"]
@@ -604,8 +667,10 @@ export type Database = {
           child_id?: string | null
           created_at?: string | null
           day?: string
+          fee_inr?: number | null
           id?: string
           kind?: string
+          paid_at?: string | null
           slot_label?: string | null
           starts_at?: string | null
           status?: Database["public"]["Enums"]["visit_status"]
@@ -625,6 +690,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_staff: {
+        Args: { _approve: boolean; _user_id: string }
+        Returns: undefined
+      }
       claim_doctor_if_none: { Args: never; Returns: boolean }
       has_role: {
         Args: {
@@ -633,6 +702,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "doctor" | "desk"

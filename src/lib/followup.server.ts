@@ -212,7 +212,23 @@ export async function handleReply(a: Db, token: string, text: string) {
     return { parsed };
   }
 
-  await send(a, who.guardianId, "ack", "Thanks — the clinic team will reply shortly.", "धन्यवाद — क्लिनिक टीम जल्द जवाब देगी।");
+  // Question / hesitancy: AI drafts a calm, guideline-based reply for the doctor to approve.
+  let draft: { en: string; hi: string } | null = null;
+  try {
+    const { aiText, extractJson } = await import("./ai.server");
+    const out = await aiText(
+      `You help an Indian paediatrician reply to a parent's WhatsApp question about vaccines (often vaccine hesitancy, side effects, fever after vaccine, missed doses).
+Write a calm, warm, factual reply under 60 words based on IAP / WHO guidance. Never diagnose; for danger signs (breathing trouble, seizures, high fever >3 days) tell them to come in now or call the clinic.
+Return ONLY JSON {"en":"...","hi":"..."} where hi is natural Hindi in Devanagari.`,
+      `Child/patient: ${who.name}. Parent wrote: "${text}"`,
+    );
+    const j = extractJson<{ en?: string; hi?: string }>(out);
+    if (j?.en) draft = { en: j.en.slice(0, 600), hi: (j.hi ?? j.en).slice(0, 600) };
+  } catch (e) {
+    console.error("draft", e);
+  }
+  if (draft && inMsg) await a.from("messages").update({ draft_reply: draft }).eq("id", inMsg.id);
+  await send(a, who.guardianId, "ack", "Thanks — the doctor will reply shortly.", "धन्यवाद — डॉक्टर जल्द जवाब देंगे।");
   return { parsed };
 }
 

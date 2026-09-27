@@ -13,7 +13,7 @@ export const getThread = createServerFn({ method: "GET" })
     if (!who) return null;
     const { data: msgs } = await a
       .from("messages")
-      .select("id, direction, kind, body_en, body_hi, quick_replies, sent_at, created_at")
+      .select("id, direction, kind, body_en, body_hi, quick_replies, sent_at, created_at, visit_id")
       .eq("guardian_id", who.guardianId)
       .order("created_at", { ascending: true })
       .limit(80);

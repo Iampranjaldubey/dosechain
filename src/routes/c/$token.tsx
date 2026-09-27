@@ -93,6 +93,13 @@ function ChildPage() {
           </div>
         )}
 
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm font-semibold">
+          <Link to="/wa/$token" params={{ token }} className="rounded-xl border border-border bg-card px-3 py-3 hover:bg-secondary">💬 {lang === "hi" ? "चैट" : "Chat"}</Link>
+          <Link to="/f/$token" params={{ token }} className="rounded-xl border border-border bg-card px-3 py-3 hover:bg-secondary">👨‍👩‍👧 {lang === "hi" ? "परिवार · भुगतान" : "Family · Pay"}</Link>
+          <Link to="/cert/$token" params={{ token }} className="rounded-xl border border-border bg-card px-3 py-3 hover:bg-secondary">📜 {lang === "hi" ? "प्रमाणपत्र" : "Certificate"}</Link>
+        </div>
+
+
         {/* footprint timeline */}
         <ol className="mt-8">
           {groups.map(([date, doses], i) => {

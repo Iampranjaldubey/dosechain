@@ -6,6 +6,7 @@ import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
 import { getBookingCatalogue, createBooking } from "@/lib/parent.functions";
 import { buildPlan, addDays, diffDays, dow, type EngineSettings, type GivenDose } from "@/lib/dosechain";
+import { readVaccineCard } from "@/lib/media.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/book")({
@@ -261,7 +262,12 @@ function BookPage() {
 
           {step === 1 && (
             <div>
-              <p className="text-sm text-muted-foreground">{t.historyHint}</p>
+              <CardScanner dob={dob} lang={lang} onRead={(doses) => {
+                const merged = [...history];
+                for (const d of doses) if (!merged.some((h) => h.code === d.code)) merged.push({ code: d.code, givenOn: d.givenOn, where: "govt" });
+                setHistory(merged);
+              }} />
+              <p className="mt-4 text-sm text-muted-foreground">{t.historyHint}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {eligibleHistory.map((d: (typeof data.catalogue)[number]) => {
                   const checked = history.some((h) => h.code === d.code);
@@ -465,5 +471,38 @@ function Shell({ children }: { children: React.ReactNode }) {
       </header>
       {children}
     </div>
+  );
+}
+
+function CardScanner({ dob, lang, onRead }: { dob: string; lang: string; onRead: (d: { code: string; givenOn: string }[]) => void }) {
+  const hi = lang === "hi";
+  const [state, setState] = useState<"idle" | "reading" | "done" | "error">("idle");
+  const [msg, setMsg] = useState("");
+  async function onFile(f: File | undefined) {
+    if (!f) return;
+    if (!dob) { setState("error"); setMsg(hi ? "पहले जन्म तिथि भरें" : "Enter the date of birth first"); return; }
+    setState("reading");
+    const img = await new Promise<string>((res) => {
+      const i = new Image(); const url = URL.createObjectURL(f);
+      i.onload = () => { const k = Math.min(1, 1400 / Math.max(i.width, i.height)); const c = document.createElement("canvas"); c.width = i.width * k; c.height = i.height * k; c.getContext("2d")!.drawImage(i, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.85)); };
+      i.src = url;
+    });
+    try {
+      const r = await readVaccineCard({ data: { image: img, dob } });
+      if (!r.ok || r.doses.length === 0) { setState("error"); setMsg(r.notes || (hi ? "कार्ड पढ़ नहीं सके — नीचे टिक करें" : "Couldn't read the card — tick the doses below.")); return; }
+      onRead(r.doses); setState("done");
+      const low = r.doses.filter((d) => d.confidence === "low").length;
+      setMsg(hi ? `${r.doses.length} टीके मिले — नीचे जाँच लें।` : `Found ${r.doses.length} doses${low ? ` (${low} unclear)` : ""} — please check the ticks below.`);
+    } catch { setState("error"); setMsg(hi ? "कार्ड पढ़ नहीं सके — नीचे टिक करें" : "Couldn't read the card — tick the doses below."); }
+  }
+  return (
+    <label className={cn("flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed p-4 transition-colors", state === "done" ? "border-given bg-given/10" : "border-primary/40 bg-secondary/40 hover:bg-secondary")}>
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary text-xl text-primary-foreground">{state === "reading" ? "…" : "📷"}</span>
+      <span className="min-w-0">
+        <span className="block font-semibold">{state === "reading" ? (hi ? "कार्ड पढ़ रहे हैं…" : "Reading the card…") : hi ? "टीका कार्ड की फ़ोटो लें" : "Snap the vaccination card"}</span>
+        <span className={cn("block text-sm", state === "error" ? "text-destructive" : "text-muted-foreground")}>{msg || (hi ? "AI पुराने टीके अपने-आप भर देगा — आप जाँच लें" : "AI fills in past doses for you — you confirm")}</span>
+      </span>
+      <input type="file" accept="image/*" capture="environment" className="sr-only" disabled={state === "reading"} onChange={(e) => onFile(e.target.files?.[0])} />
+    </label>
   );
 }
