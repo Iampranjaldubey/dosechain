@@ -130,7 +130,9 @@ function Chat() {
           <button type="button" onClick={toggleRec} disabled={voice.isPending} aria-label={rec ? "Stop recording" : "Record voice note"} className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-full text-lg", rec ? "animate-pulse bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground")}>
             {rec ? "■" : "🎤"}
           </button>
-          <button disabled={!text.trim() || send.isPending} className="rounded-full bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-50">{lang === "hi" ? "भेजें" : "Send"}</button>
+          <button disabled={!text.trim() || send.isPending} aria-label={lang === "hi" ? "भेजें" : "Send"} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50 sm:w-auto sm:px-4">
+            <span className="sm:hidden">➤</span><span className="hidden font-semibold sm:inline">{lang === "hi" ? "भेजें" : "Send"}</span>
+          </button>
         </form>
       </div>
     </div>
