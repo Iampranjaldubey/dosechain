@@ -111,6 +111,6 @@ function Family() {
           </div>
         </div>
       )}
-    </div>
+    </ParentShell>
   );
 }
