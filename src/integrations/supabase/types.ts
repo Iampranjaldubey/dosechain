@@ -902,6 +902,38 @@ export type Database = {
           },
         ]
       }
+      staff_invites: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          email: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          email: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_invites_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_requests: {
         Row: {
           clinic_id: string
@@ -1117,6 +1149,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_my_invites: { Args: never; Returns: number }
       add_staff_by_email: {
         Args: {
           _clinic: string
