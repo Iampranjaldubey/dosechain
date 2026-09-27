@@ -10,20 +10,42 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BookRouteImport } from './routes/book'
+import { Route as ClinicRouteImport } from './routes/clinic'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ApiCapacityAnalysisRouteImport } from './routes/api/capacity-analysis'
 import { Route as BTokenRouteImport } from './routes/b/$token'
 import { Route as CTokenRouteImport } from './routes/c/$token'
+import { Route as ClinicIndexRouteImport } from './routes/clinic.index'
+import { Route as ClinicApprovalsRouteImport } from './routes/clinic.approvals'
 import { Route as ClinicCapacityRouteImport } from './routes/clinic.capacity'
+import { Route as ClinicMessagesRouteImport } from './routes/clinic.messages'
+import { Route as WaTokenRouteImport } from './routes/wa.$token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookRoute = BookRouteImport.update({
   id: '/book',
   path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClinicRoute = ClinicRouteImport.update({
+  id: '/clinic',
+  path: '/clinic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCapacityAnalysisRoute = ApiCapacityAnalysisRouteImport.update({
@@ -41,71 +63,134 @@ const CTokenRoute = CTokenRouteImport.update({
   path: '/c/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClinicIndexRoute = ClinicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ClinicRoute,
+} as any)
+const ClinicApprovalsRoute = ClinicApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => ClinicRoute,
+} as any)
 const ClinicCapacityRoute = ClinicCapacityRouteImport.update({
-  id: '/clinic/capacity',
-  path: '/clinic/capacity',
+  id: '/capacity',
+  path: '/capacity',
+  getParentRoute: () => ClinicRoute,
+} as any)
+const ClinicMessagesRoute = ClinicMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => ClinicRoute,
+} as any)
+const WaTokenRoute = WaTokenRouteImport.update({
+  id: '/wa/$token',
+  path: '/wa/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/book': typeof BookRoute
+  '/clinic': typeof ClinicRouteWithChildren
+  '/demo': typeof DemoRoute
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
+  '/clinic/messages': typeof ClinicMessagesRoute
+  '/wa/$token': typeof WaTokenRoute
+  '/clinic/': typeof ClinicIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/book': typeof BookRoute
+  '/demo': typeof DemoRoute
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
+  '/clinic/messages': typeof ClinicMessagesRoute
+  '/wa/$token': typeof WaTokenRoute
+  '/clinic': typeof ClinicIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/book': typeof BookRoute
+  '/clinic': typeof ClinicRouteWithChildren
+  '/demo': typeof DemoRoute
   '/api/capacity-analysis': typeof ApiCapacityAnalysisRoute
   '/b/$token': typeof BTokenRoute
   '/c/$token': typeof CTokenRoute
+  '/clinic/approvals': typeof ClinicApprovalsRoute
   '/clinic/capacity': typeof ClinicCapacityRoute
+  '/clinic/messages': typeof ClinicMessagesRoute
+  '/wa/$token': typeof WaTokenRoute
+  '/clinic/': typeof ClinicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/book'
+    | '/clinic'
+    | '/demo'
     | '/api/capacity-analysis'
     | '/b/$token'
     | '/c/$token'
+    | '/clinic/approvals'
     | '/clinic/capacity'
+    | '/clinic/messages'
+    | '/wa/$token'
+    | '/clinic/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/book'
+    | '/demo'
     | '/api/capacity-analysis'
     | '/b/$token'
     | '/c/$token'
+    | '/clinic/approvals'
     | '/clinic/capacity'
+    | '/clinic/messages'
+    | '/wa/$token'
+    | '/clinic'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/book'
+    | '/clinic'
+    | '/demo'
     | '/api/capacity-analysis'
     | '/b/$token'
     | '/c/$token'
+    | '/clinic/approvals'
     | '/clinic/capacity'
+    | '/clinic/messages'
+    | '/wa/$token'
+    | '/clinic/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   BookRoute: typeof BookRoute
+  ClinicRoute: typeof ClinicRouteWithChildren
+  DemoRoute: typeof DemoRoute
   ApiCapacityAnalysisRoute: typeof ApiCapacityAnalysisRoute
   BTokenRoute: typeof BTokenRoute
   CTokenRoute: typeof CTokenRoute
-  ClinicCapacityRoute: typeof ClinicCapacityRoute
+  WaTokenRoute: typeof WaTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -117,11 +202,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/book': {
       id: '/book'
       path: '/book'
       fullPath: '/book'
       preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinic': {
+      id: '/clinic'
+      path: '/clinic'
+      fullPath: '/clinic'
+      preLoaderRoute: typeof ClinicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/capacity-analysis': {
@@ -145,23 +251,71 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clinic/': {
+      id: '/clinic/'
+      path: '/'
+      fullPath: '/clinic/'
+      preLoaderRoute: typeof ClinicIndexRouteImport
+      parentRoute: typeof ClinicRoute
+    }
+    '/clinic/approvals': {
+      id: '/clinic/approvals'
+      path: '/approvals'
+      fullPath: '/clinic/approvals'
+      preLoaderRoute: typeof ClinicApprovalsRouteImport
+      parentRoute: typeof ClinicRoute
+    }
     '/clinic/capacity': {
       id: '/clinic/capacity'
-      path: '/clinic/capacity'
+      path: '/capacity'
       fullPath: '/clinic/capacity'
       preLoaderRoute: typeof ClinicCapacityRouteImport
+      parentRoute: typeof ClinicRoute
+    }
+    '/clinic/messages': {
+      id: '/clinic/messages'
+      path: '/messages'
+      fullPath: '/clinic/messages'
+      preLoaderRoute: typeof ClinicMessagesRouteImport
+      parentRoute: typeof ClinicRoute
+    }
+    '/wa/$token': {
+      id: '/wa/$token'
+      path: '/wa/$token'
+      fullPath: '/wa/$token'
+      preLoaderRoute: typeof WaTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
+interface ClinicRouteChildren {
+  ClinicApprovalsRoute: typeof ClinicApprovalsRoute
+  ClinicCapacityRoute: typeof ClinicCapacityRoute
+  ClinicMessagesRoute: typeof ClinicMessagesRoute
+  ClinicIndexRoute: typeof ClinicIndexRoute
+}
+
+const ClinicRouteChildren: ClinicRouteChildren = {
+  ClinicApprovalsRoute: ClinicApprovalsRoute,
+  ClinicCapacityRoute: ClinicCapacityRoute,
+  ClinicMessagesRoute: ClinicMessagesRoute,
+  ClinicIndexRoute: ClinicIndexRoute,
+}
+
+const ClinicRouteWithChildren =
+  ClinicRoute._addFileChildren(ClinicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   BookRoute: BookRoute,
+  ClinicRoute: ClinicRouteWithChildren,
+  DemoRoute: DemoRoute,
   ApiCapacityAnalysisRoute: ApiCapacityAnalysisRoute,
   BTokenRoute: BTokenRoute,
   CTokenRoute: CTokenRoute,
-  ClinicCapacityRoute: ClinicCapacityRoute,
+  WaTokenRoute: WaTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

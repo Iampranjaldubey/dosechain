@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Logo } from "@/components/Footprint";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/clinic/capacity")({
   head: () => ({
@@ -59,8 +59,9 @@ function CapacityPage() {
     setBusy(true); setErr(""); setOut("");
     ctrl.current = new AbortController();
     try {
+      const { data: sess } = await supabase.auth.getSession();
       const res = await fetch("/api/capacity-analysis", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${sess.session?.access_token ?? ""}` },
         body: JSON.stringify({ days: rows, peakNotes, constraints }), signal: ctrl.current.signal,
       });
       if (!res.ok || !res.body) {
@@ -80,12 +81,6 @@ function CapacityPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-          <Link to="/"><Logo /></Link>
-          <span className="text-sm text-muted-foreground">Clinic admin · Capacity planner</span>
-        </div>
-      </header>
       <main className="mx-auto max-w-6xl px-5 py-10">
         <h1 className="font-display text-4xl text-foreground">Find your scheduling bottlenecks</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">Enter a typical week's hours and demand. AI compares capacity with demand and suggests practical changes. Suggestions only — you decide.</p>
