@@ -121,6 +121,18 @@ export const decideBooking = createServerFn({ method: "POST" })
         body_en: data.approve ? `✅ ${name}'s vaccine visit is confirmed for ${when}. See you at the clinic!` : `Sorry, we couldn't keep ${name}'s slot on ${when}. Please reply and we'll find another time.`,
         body_hi: data.approve ? `✅ ${name} का टीकाकरण ${when} को पक्का हो गया है। क्लिनिक में मिलते हैं!` : `माफ़ कीजिए, ${name} का ${when} का समय नहीं हो पाएगा। जवाब दें, हम दूसरा समय देंगे।`,
       });
+      if (data.approve) {
+        // schedule the day-before reminder for 18:00 IST; the reminder sweep delivers it
+        const eve = new Date(Date.parse(v.day + "T12:30:00Z") - 864e5).toISOString();
+        await sb.from("messages").insert({
+          guardian_id: g, direction: "out", kind: "reminder_1d", visit_id: v.id, status: "scheduled", scheduled_for: eve,
+          quick_replies: ["Yes / हाँ", "Fever / बुखार है", "Change date / तारीख बदलें"],
+          body_en: `Reminder: ${name}'s vaccines are tomorrow (${when}). Reply YES to confirm, or tell us if the child is unwell.`,
+          body_hi: `याद दिलाना: ${name} के टीके कल (${when}) हैं। पुष्टि के लिए "हाँ" लिखें, या बच्चा बीमार हो तो बताएं।`,
+        });
+      } else {
+        await sb.from("messages").delete().eq("visit_id", v.id).eq("status", "scheduled");
+      }
     }
     return { ok: true };
   });
