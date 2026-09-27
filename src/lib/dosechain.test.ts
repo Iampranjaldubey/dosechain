@@ -163,11 +163,11 @@ describe("bite lane engine", () => {
     const doses = planBiteCourse("2026-09-27", [0, 3, 7, 28], WINDOWS, []);
     // day-7 (2026-10-04) missed; today is 2026-10-05 (Monday, windows exist)
     const res = rescheduleMissedDose(doses, 2, "2026-10-05", WINDOWS, []);
-    expect(res[2].date).toBe("2026-10-05");
-    expect(res[2].window).toEqual(["10:00", "10:45"]);
-    expect(diffDays(res[3].date, res[2].date)).toBe(21);
+    expect(res[2]!.date).toBe("2026-10-05");
+    expect(res[2]!.window).toEqual(["10:00", "10:45"]);
+    expect(diffDays(res[3]!.date, res[2]!.date)).toBe(21);
     // earlier doses untouched
-    expect(res[0].date).toBe("2026-09-27");
-    expect(res[1].date).toBe("2026-09-30");
+    expect(res[0]!.date).toBe("2026-09-27");
+    expect(res[1]!.date).toBe("2026-09-30");
   });
 });

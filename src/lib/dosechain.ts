@@ -112,7 +112,7 @@ export function buildPlan(
   for (const h of history) {
     const def = defByCode.get(h.code);
     if (!def) continue;
-    if (!seriesLast[def.series] || seriesLast[def.series] < h.givenOn)
+    if (!seriesLast[def.series] || (seriesLast[def.series] ?? "") < h.givenOn)
       seriesLast[def.series] = h.givenOn;
     if (def.isLive) liveDates.push(h.givenOn);
   }
@@ -136,7 +136,7 @@ export function buildPlan(
       const gapOk =
         d.minGapPrevD == null ||
         !seriesLast[d.series] ||
-        diffDays(last.date, seriesLast[d.series]) >= d.minGapPrevD;
+        diffDays(last.date, seriesLast[d.series]!) >= d.minGapPrevD;
       const liveOk = !d.isLive || liveOkAt(last.date, liveDates);
       if (e <= last.date && target <= addDays(last.date, 14) && gapOk && liveOk) {
         last.doses.push(d.code);
