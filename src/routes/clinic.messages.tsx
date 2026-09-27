@@ -51,7 +51,7 @@ function DraftBox({ m }: { m: any }) {
   return (
     <div className="mt-3 rounded-2xl border border-accent/60 bg-accent/10 p-3">
       <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">AI-drafted reply · IAP/WHO guidance · you approve</p>
-      <textarea value={en} onChange={(e) => setEn(e.target.value)} rows={3} className="mt-1 w-full rounded-xl border border-border bg-card p-2 text-sm" />
+      <textarea maxLength={600} value={en} onChange={(e) => setEn(e.target.value)} rows={3} className="mt-1 w-full rounded-xl border border-border bg-card p-2 text-sm" />
       <p className="text-xs text-muted-foreground">हिंदी: {m.draft_reply.hi}</p>
       <button onClick={() => send.mutate()} disabled={send.isPending || !en.trim()} className="mt-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50">{send.isPending ? "Sending…" : "Approve & send"}</button>
     </div>

@@ -134,9 +134,9 @@ function ProfileEditor({ token, p, onSaved }: { token: string; p: NonNullable<Aw
             </select>
           </label>
           <label className="text-sm font-medium">Birth weight (kg)<input type="number" step="0.01" min={0.3} max={7} value={f.bw} onChange={(e) => setF({ ...f, bw: e.target.value })} className={`${inp} mt-1`} /></label>
-          <label className="text-sm font-medium">Allergies (comma separated)<input value={f.allergies} onChange={(e) => setF({ ...f, allergies: e.target.value })} placeholder="Penicillin, peanuts" className={`${inp} mt-1`} /></label>
-          <label className="text-sm font-medium">Ongoing conditions<input value={f.conditions} onChange={(e) => setF({ ...f, conditions: e.target.value })} placeholder="Asthma" className={`${inp} mt-1`} /></label>
-          <label className="text-sm font-medium sm:col-span-2">Notes<textarea rows={2} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} className={`${inp} mt-1`} /></label>
+          <label className="text-sm font-medium">Allergies (comma separated)<input maxLength={400} value={f.allergies} onChange={(e) => setF({ ...f, allergies: e.target.value })} placeholder="Penicillin, peanuts" className={`${inp} mt-1`} /></label>
+          <label className="text-sm font-medium">Ongoing conditions<input maxLength={400} value={f.conditions} onChange={(e) => setF({ ...f, conditions: e.target.value })} placeholder="Asthma" className={`${inp} mt-1`} /></label>
+          <label className="text-sm font-medium sm:col-span-2">Notes<textarea maxLength={1000} rows={2} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} className={`${inp} mt-1`} /></label>
           <button disabled={m.isPending} className="w-fit rounded-xl bg-primary px-5 py-2 font-semibold text-primary-foreground">Save</button>
         </form>
       )}
@@ -230,7 +230,7 @@ function Upload({ token, onDone }: { token: string; onDone: () => void }) {
           </select>
         </label>
         <label className="text-sm font-medium">Report date<input type="date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} className={`${inp} mt-1`} /></label>
-        <label className="text-sm font-medium sm:col-span-2">Title<input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="e.g. CBC blood test" className={`${inp} mt-1`} /></label>
+        <label className="text-sm font-medium sm:col-span-2">Title<input maxLength={120} value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="e.g. CBC blood test" className={`${inp} mt-1`} /></label>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">Photos are read automatically to fill in the type and date. Please check them.</p>
       <button onClick={submit} disabled={!file || busy} className="mt-3 rounded-xl bg-primary px-5 py-2 font-semibold text-primary-foreground disabled:opacity-60">{busy ? "Uploading…" : "Upload"}</button>

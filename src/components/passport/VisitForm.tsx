@@ -35,14 +35,14 @@ export function VisitForm({ mode, allergies, busy, onSubmit }: { mode: "clinic" 
         <label className="text-sm font-medium">Visit date<input type="date" required max={today} value={f.visitDate} onChange={(e) => set("visitDate", e.target.value)} className={`${inp} mt-1`} /></label>
         {mode === "parent" && (
           <>
-            <label className="text-sm font-medium">Doctor<input value={f.doctorName} onChange={(e) => set("doctorName", e.target.value)} className={`${inp} mt-1`} placeholder="Dr. …" /></label>
-            <label className="text-sm font-medium">Clinic / hospital<input value={f.clinicName} onChange={(e) => set("clinicName", e.target.value)} className={`${inp} mt-1`} /></label>
+            <label className="text-sm font-medium">Doctor<input maxLength={120} value={f.doctorName} onChange={(e) => set("doctorName", e.target.value)} className={`${inp} mt-1`} placeholder="Dr. …" /></label>
+            <label className="text-sm font-medium">Clinic / hospital<input maxLength={120} value={f.clinicName} onChange={(e) => set("clinicName", e.target.value)} className={`${inp} mt-1`} /></label>
           </>
         )}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="text-sm font-medium">Symptoms<textarea rows={2} value={f.symptoms} onChange={(e) => set("symptoms", e.target.value)} className={`${inp} mt-1`} /></label>
-        <label className="text-sm font-medium">Diagnosis<textarea rows={2} value={f.diagnosis} onChange={(e) => set("diagnosis", e.target.value)} className={`${inp} mt-1`} /></label>
+        <label className="text-sm font-medium">Symptoms<textarea maxLength={1000} rows={2} value={f.symptoms} onChange={(e) => set("symptoms", e.target.value)} className={`${inp} mt-1`} /></label>
+        <label className="text-sm font-medium">Diagnosis<textarea maxLength={500} rows={2} value={f.diagnosis} onChange={(e) => set("diagnosis", e.target.value)} className={`${inp} mt-1`} /></label>
       </div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.isIllness} onChange={(e) => set("isIllness", e.target.checked)} className="h-4 w-4" /> Child is unwell (fever / infection){mode === "clinic" && <span className="text-muted-foreground"> — suggests moving a vaccine visit due this week</span>}</label>
 
@@ -51,9 +51,9 @@ export function VisitForm({ mode, allergies, busy, onSubmit }: { mode: "clinic" 
         <div className="space-y-2">
           {rx.map((r, i) => (
             <div key={i} className="grid grid-cols-2 gap-2 rounded-2xl border border-border p-2 sm:grid-cols-[2fr_1fr_1.3fr_0.7fr_auto_auto]">
-              <input aria-label="Medicine" placeholder="Medicine" value={r.medicine} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, medicine: e.target.value } : x)))} className={`${inp} col-span-2 sm:col-span-1`} />
-              <input aria-label="Dose" placeholder="Dose (5 ml)" value={r.dose} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, dose: e.target.value } : x)))} className={inp} />
-              <input aria-label="How often" placeholder="Twice a day" value={r.frequency} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, frequency: e.target.value } : x)))} className={inp} />
+              <input aria-label="Medicine" placeholder="Medicine" maxLength={120} value={r.medicine} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, medicine: e.target.value } : x)))} className={`${inp} col-span-2 sm:col-span-1`} />
+              <input aria-label="Dose" placeholder="Dose (5 ml)" maxLength={60} value={r.dose} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, dose: e.target.value } : x)))} className={inp} />
+              <input aria-label="How often" placeholder="Twice a day" maxLength={60} value={r.frequency} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, frequency: e.target.value } : x)))} className={inp} />
               <input aria-label="Days" type="number" min={0} max={90} placeholder="Days" value={r.days} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, days: e.target.value } : x)))} className={inp} />
               {mode === "clinic" ? (
                 <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={r.remind} onChange={(e) => setRx(rx.map((x, j) => (j === i ? { ...x, remind: e.target.checked } : x)))} /> WhatsApp reminder</label>
@@ -71,7 +71,7 @@ export function VisitForm({ mode, allergies, busy, onSubmit }: { mode: "clinic" 
         )}
       </div>
 
-      <label className="block text-sm font-medium">Advice<textarea rows={2} value={f.advice} onChange={(e) => set("advice", e.target.value)} className={`${inp} mt-1`} /></label>
+      <label className="block text-sm font-medium">Advice<textarea maxLength={1000} rows={2} value={f.advice} onChange={(e) => set("advice", e.target.value)} className={`${inp} mt-1`} /></label>
       <div className="grid gap-3 sm:grid-cols-4">
         <label className="text-sm font-medium">Weight (kg)<input type="number" step="0.01" min={0.5} max={60} value={f.w} onChange={(e) => set("w", e.target.value)} className={`${inp} mt-1`} /></label>
         <label className="text-sm font-medium">Height (cm)<input type="number" step="0.1" min={30} max={150} value={f.h} onChange={(e) => set("h", e.target.value)} className={`${inp} mt-1`} /></label>
