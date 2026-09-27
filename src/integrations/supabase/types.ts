@@ -506,6 +506,24 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_requests: {
+        Row: {
+          created_at: string
+          email: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       stock: {
         Row: {
           name: string | null
@@ -672,6 +690,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_staff: {
+        Args: { _approve: boolean; _user_id: string }
+        Returns: undefined
+      }
       claim_doctor_if_none: { Args: never; Returns: boolean }
       has_role: {
         Args: {
@@ -680,6 +702,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "doctor" | "desk"
