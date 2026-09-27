@@ -15,7 +15,7 @@ function Today() {
   const refresh = () => qc.invalidateQueries();
   const run = useMutation({
     mutationFn: () => runAutomationsNow(),
-    onSuccess: (r) => { toast.success(`Sent ${r.reminders + r.biteReminders} reminders · ${r.rescues} bite rescues`); refresh(); },
+    onSuccess: (r) => { toast.success(`Sent ${r.reminders + r.biteReminders + (r.scheduledSent ?? 0)} reminders · ${r.rescues} bite rescues`); refresh(); },
     onError: (e) => toast.error((e as Error).message),
   });
   const clock = useMutation({ mutationFn: (days: number | null) => setDemoClock({ data: { days } }), onSuccess: refresh });
@@ -57,6 +57,7 @@ function Today() {
       <section className="mt-6 grid gap-4 sm:grid-cols-4">
         <Stat label="Staff time saved (4 wks)" value={`${Math.round(data.impact.minutes / 60)} h`} strong />
         <Stat label="Reminders sent" value={data.impact.reminders} />
+        <Stat label="Reminders queued" value={data.scheduledCount} />
         <Stat label="Auto-confirmed · vial doses saved" value={`${data.impact.confirms} · ${data.impact.vialDoses}`} />
         <Stat label="Re-plans & rescues" value={data.impact.replans} />
       </section>
