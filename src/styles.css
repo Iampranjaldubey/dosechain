@@ -180,14 +180,6 @@
 }
 .sticker-wiggle { animation: wiggle 5s ease-in-out infinite; }
 .doodle-float { animation: floaty 9s ease-in-out infinite; }
-/* hand-drawn crayon underline for section titles */
-.crayon-underline {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 Q 15 2 30 7 T 60 7 T 90 7 T 118 6' fill='none' stroke='%23F2B544' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 100% 0.3em;
-  padding-bottom: 0.12em;
-}
 .blob-soft { border-radius: 42% 58% 55% 45% / 48% 42% 58% 52%; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; }
