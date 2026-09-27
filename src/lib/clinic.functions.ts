@@ -44,6 +44,7 @@ export const getDashboard = createServerFn({ method: "POST" })
       sb.from("app_clock").select("demo_now").eq("id", 1).single(),
     ]);
     const { data: recallRaw } = await sb.from("visits").select("id, day, status, children(name, public_token)").eq("kind", "vaccine").or(`status.eq.missed,and(status.in.(booked,confirmed),day.lt.${today})`).order("day").limit(15);
+    const { data: newRaw } = await sb.from("visits").select("id, day, slot_label, children(name, public_token)").eq("kind", "vaccine").eq("status", "booked").gte("day", today).order("day").limit(20);
     const caseById = new Map(((bites.data ?? []) as any[]).map((b) => [b.id, b]));
     const visitRows = ((visits.data ?? []) as any[]).map((v) => ({ ...v, bite_cases: v.bite_case_id ? caseById.get(v.bite_case_id) ?? null : null }));
     const ev = (impact.data ?? []) as { kind: string; minutes_saved: number }[];
@@ -55,6 +56,7 @@ export const getDashboard = createServerFn({ method: "POST" })
       bites: bites.data ?? [],
       vials: vials.data ?? [],
       pendingCount: pending.count ?? 0,
+      newBookings: ((newRaw ?? []) as any[]).filter((r) => r.children).map((r) => ({ id: r.id, day: r.day, slot: r.slot_label, name: r.children.name, token: r.children.public_token })),
       recall: ((recallRaw ?? []) as any[]).filter((r) => r.children).map((r) => ({ id: r.id, day: r.day, status: r.status, name: r.children.name, token: r.children.public_token, daysLate: Math.round((Date.parse(today) - Date.parse(r.day)) / 864e5) })),
       vialsUsedToday: ((vials.data ?? []) as any[]).filter((v) => todayIst(v.opened_at) === today).reduce((n, v) => n + (v.sites_used ?? 0), 0),
       impact: {
@@ -98,6 +100,27 @@ export const setVisitStatus = createServerFn({ method: "POST" })
     if (data.status === "done") {
       const today = new Date().toISOString().slice(0, 10);
       await sb.from("child_doses").update({ status: "given", given_on: today }).eq("visit_id", data.id);
+    }
+    return { ok: true };
+  });
+
+export const decideBooking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), approve: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase as any;
+    const { data: v } = await sb.from("visits").select("id, day, slot_label, children(name, guardian_id)").eq("id", data.id).single();
+    if (!v) throw new Error("Booking not found");
+    await sb.from("visits").update({ status: data.approve ? "confirmed" : "cancelled" }).eq("id", data.id);
+    const g = v.children?.guardian_id;
+    if (g) {
+      const name = v.children.name;
+      const when = `${v.day}${v.slot_label ? " " + v.slot_label : ""}`;
+      await sb.from("messages").insert({
+        guardian_id: g, direction: "out", kind: data.approve ? "booking_confirmed" : "booking_declined", visit_id: v.id, status: "sent", sent_at: new Date().toISOString(),
+        body_en: data.approve ? `✅ ${name}'s vaccine visit is confirmed for ${when}. See you at the clinic!` : `Sorry, we couldn't keep ${name}'s slot on ${when}. Please reply and we'll find another time.`,
+        body_hi: data.approve ? `✅ ${name} का टीकाकरण ${when} को पक्का हो गया है। क्लिनिक में मिलते हैं!` : `माफ़ कीजिए, ${name} का ${when} का समय नहीं हो पाएगा। जवाब दें, हम दूसरा समय देंगे।`,
+      });
     }
     return { ok: true };
   });

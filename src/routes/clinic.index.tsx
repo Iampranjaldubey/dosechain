@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getBriefing, getRiskRadar, nudgeHighRisk, getDashboard, giveBiteDose, runAutomationsNow, setDemoClock, setVisitStatus } from "@/lib/clinic.functions";
+import { getBriefing, getRiskRadar, nudgeHighRisk, getDashboard, giveBiteDose, runAutomationsNow, setDemoClock, setVisitStatus, decideBooking } from "@/lib/clinic.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/clinic/")({ component: Today });
@@ -20,6 +20,7 @@ function Today() {
   });
   const clock = useMutation({ mutationFn: (days: number | null) => setDemoClock({ data: { days } }), onSuccess: refresh });
   const visit = useMutation({ mutationFn: (v: { id: string; status: "checked_in" | "done" | "missed" }) => setVisitStatus({ data: v }), onSuccess: refresh });
+  const booking = useMutation({ mutationFn: (v: { id: string; approve: boolean }) => decideBooking({ data: v }), onSuccess: refresh });
   const give = useMutation({ mutationFn: (doseId: string) => giveBiteDose({ data: { doseId } }), onSuccess: () => { toast.success("Dose recorded"); refresh(); } });
 
   if (isLoading || !data) return <p className="p-10 text-center text-muted-foreground">Loading today…</p>;
@@ -120,6 +121,25 @@ function Today() {
           </div>
         </section>
       </div>
+
+      <section className="mt-8 rounded-3xl border border-border bg-card p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-display text-2xl">New bookings to confirm</h2>
+          <p className="text-sm text-muted-foreground">Confirming sends the parent a WhatsApp message</p>
+        </div>
+        {(data.newBookings as any[]).length === 0 ? <p className="mt-3 text-sm text-muted-foreground">No bookings waiting.</p> : (
+          <ul className="mt-3 divide-y divide-border">
+            {(data.newBookings as any[]).map((b) => (
+              <li key={b.id} className="flex flex-wrap items-center gap-3 py-2 text-sm">
+                <span className="flex-1"><b>{b.name}</b> <span className="text-muted-foreground">· {fmt(b.day)}{b.slot ? ` · ${b.slot}` : ""}</span></span>
+                <a href={`/c/${b.token}`} target="_blank" rel="noreferrer" className="text-xs text-primary">Plan</a>
+                <button disabled={booking.isPending} onClick={() => booking.mutate({ id: b.id, approve: true })} className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Confirm</button>
+                <button disabled={booking.isPending} onClick={() => booking.mutate({ id: b.id, approve: false })} className="rounded-full border border-border px-3 py-1 text-xs">Decline</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="mt-8 rounded-3xl border border-border bg-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
