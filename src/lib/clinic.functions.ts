@@ -10,6 +10,9 @@ export const whoAmI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await (context.supabase as any)
+      .from("user_roles")
+      .select("role, clinic_id, clinics(name)")
+      .eq("user_id", context.userId);
     const memberships: Membership[] = ((data ?? []) as any[]).map((r) => ({
       clinicId: r.clinic_id,
       clinicName: r.clinics?.name ?? "Clinic",
