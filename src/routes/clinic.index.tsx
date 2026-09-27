@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getDashboard, giveBiteDose, runAutomationsNow, setDemoClock, setVisitStatus } from "@/lib/clinic.functions";
+import { getBriefing, getRiskRadar, nudgeHighRisk, getDashboard, giveBiteDose, runAutomationsNow, setDemoClock, setVisitStatus } from "@/lib/clinic.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/clinic/")({ component: Today });
@@ -30,7 +30,8 @@ function Today() {
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <Brain />
+      <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">{data.demoClock ? "Demo clock" : "Today"}</p>
           <h1 className="font-display text-4xl">{fmt(today)}</h1>
@@ -159,5 +160,51 @@ function Stat({ label, value, strong }: { label: string; value: string | number;
       <p className={cn("text-sm", strong ? "opacity-85" : "text-muted-foreground")}>{label}</p>
       <p className="mt-1 font-display text-3xl">{value}</p>
     </div>
+  );
+}
+
+function Brain() {
+  const qc = useQueryClient();
+  const brief = useQuery({ queryKey: ["brief"], queryFn: () => getBriefing(), staleTime: 5 * 60_000 });
+  const risk = useQuery({ queryKey: ["risk"], queryFn: () => getRiskRadar() });
+  const nudge = useMutation({
+    mutationFn: () => nudgeHighRisk(),
+    onSuccess: (r) => { toast.success(`Sent ${r.sent} WhatsApp nudges — no calls needed`); void qc.invalidateQueries(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const rows = risk.data ?? [];
+  const high = rows.filter((r) => r.level === "high").length;
+  const tone: Record<string, string> = { high: "bg-destructive/15 text-destructive", medium: "bg-accent/25 text-foreground", low: "bg-secondary text-secondary-foreground" };
+  return (
+    <section className="grid gap-4 lg:grid-cols-5">
+      <div className="rounded-3xl bg-primary p-6 text-primary-foreground lg:col-span-2">
+        <p className="text-xs font-bold uppercase tracking-widest opacity-80">Morning briefing{brief.data?.ai ? " · AI" : ""}</p>
+        {brief.isLoading ? <p className="mt-3 animate-pulse opacity-80">Reading today's schedule…</p> : (
+          <p className="mt-3 whitespace-pre-line leading-relaxed">{brief.data?.text ?? "Briefing unavailable."}</p>
+        )}
+        <button onClick={() => brief.refetch()} className="mt-4 text-xs underline opacity-80">Refresh</button>
+      </div>
+      <div className="rounded-3xl border border-border bg-card p-6 lg:col-span-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-display text-2xl">No-show radar</h2>
+            <p className="text-sm text-muted-foreground">Next 3 days · transparent score, reasons shown</p>
+          </div>
+          <button onClick={() => nudge.mutate()} disabled={!high || nudge.isPending} className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+            {nudge.isPending ? "Sending…" : `Nudge ${high} high-risk`}
+          </button>
+        </div>
+        {risk.isLoading && <p className="mt-4 text-sm text-muted-foreground">Scoring…</p>}
+        {!risk.isLoading && rows.length === 0 && <p className="mt-4 text-sm text-muted-foreground">Nobody at risk. 🎉</p>}
+        <ul className="mt-3 max-h-64 space-y-2 overflow-auto">
+          {rows.map((r) => (
+            <li key={r.id} className="flex items-center gap-3 text-sm">
+              <span className={cn("w-12 shrink-0 rounded-full py-0.5 text-center text-xs font-bold tabular-nums", tone[r.level])}>{r.score}</span>
+              <span className="min-w-0 flex-1 truncate"><b>{r.kind === "bite" ? "🐕 " : ""}{r.name}</b> <span className="text-muted-foreground">· {r.reasons.join(" · ")}</span></span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
