@@ -98,9 +98,6 @@
   /* gentle kid-vibe accents (used sparingly, never for status) */
   --blush: oklch(0.86 0.07 20);
   --butter: oklch(0.88 0.11 88);
-  --mascot-body: oklch(0.86 0.035 230);
-  --mascot-ear: oklch(0.80 0.045 230);
-  --mascot-line: oklch(0.32 0.03 230);
 }
 
 .dark {
