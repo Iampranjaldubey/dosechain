@@ -18,7 +18,6 @@ export function PhoneInput({ value, onChange, id, disabled, required }: { value:
           onBlur={() => setTouched(true)}
           inputMode="numeric"
           autoComplete="tel-national"
-          maxLength={10}
           pattern="[6-9][0-9]{9}"
           placeholder="98765 43210"
           aria-invalid={bad}
