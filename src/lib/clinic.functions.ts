@@ -9,7 +9,23 @@ export const whoAmI = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await context.supabase.rpc("claim_doctor_if_none");
     const { data } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
-    return { roles: ((data ?? []) as { role: string }[]).map((r) => r.role) };
+    return { roles: ((data ?? []) as { role: string }[]).map((r) => r.role), email: (context.claims as any)?.email ?? "" };
+  });
+
+export const listStaffRequests = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await (context.supabase as any).from("staff_requests").select("user_id, email, created_at").order("created_at");
+    return (data ?? []) as { user_id: string; email: string | null; created_at: string }[];
+  });
+
+export const approveStaff = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid(), approve: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as any).rpc("approve_staff", { _user_id: data.userId, _approve: data.approve });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const getDashboard = createServerFn({ method: "POST" })
@@ -27,6 +43,7 @@ export const getDashboard = createServerFn({ method: "POST" })
       sb.from("impact_events").select("kind, minutes_saved, created_at").gte("created_at", new Date(Date.now() - 28 * 864e5).toISOString()),
       sb.from("app_clock").select("demo_now").eq("id", 1).single(),
     ]);
+    const { data: recallRaw } = await sb.from("visits").select("id, day, status, children(name, public_token)").eq("kind", "vaccine").or(`status.eq.missed,and(status.in.(booked,confirmed),day.lt.${today})`).order("day").limit(15);
     const caseById = new Map(((bites.data ?? []) as any[]).map((b) => [b.id, b]));
     const visitRows = ((visits.data ?? []) as any[]).map((v) => ({ ...v, bite_cases: v.bite_case_id ? caseById.get(v.bite_case_id) ?? null : null }));
     const ev = (impact.data ?? []) as { kind: string; minutes_saved: number }[];
@@ -38,6 +55,8 @@ export const getDashboard = createServerFn({ method: "POST" })
       bites: bites.data ?? [],
       vials: vials.data ?? [],
       pendingCount: pending.count ?? 0,
+      recall: ((recallRaw ?? []) as any[]).filter((r) => r.children).map((r) => ({ id: r.id, day: r.day, status: r.status, name: r.children.name, token: r.children.public_token, daysLate: Math.round((Date.parse(today) - Date.parse(r.day)) / 864e5) })),
+      vialsUsedToday: ((vials.data ?? []) as any[]).filter((v) => todayIst(v.opened_at) === today).reduce((n, v) => n + (v.sites_used ?? 0), 0),
       impact: {
         minutes: ev.reduce((s, e) => s + (e.minutes_saved ?? 0), 0),
         reminders: ev.filter((e) => e.kind === "reminder_sent" || e.kind === "recall_call_avoided").length,

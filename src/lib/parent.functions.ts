@@ -227,6 +227,18 @@ export const createBooking = createServerFn({ method: "POST" })
     );
     if (plannedRows.length > 0) await a.from("child_doses").insert(plannedRows);
 
+    // open the WhatsApp thread: booking confirmation (the reminder sweep sends the day-before reminder)
+    if (visitId) {
+      const when = new Date(data.slotDate + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+      const whenHi = new Date(data.slotDate + "T00:00:00Z").toLocaleDateString("hi-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+      await a.from("messages").insert({
+        guardian_id: guardianId, direction: "out", kind: "booking_confirm", status: "sent", sent_at: new Date().toISOString(), visit_id: visitId,
+        body_en: `You're booked! ${data.childName}'s vaccines: ${when}, ${data.slotLabel}. We'll remind you the day before. Reply here anytime — e.g. if your child is unwell.`,
+        body_hi: `बुकिंग पक्की! ${data.childName} के टीके: ${whenHi}, ${data.slotLabel}। एक दिन पहले याद दिलाएंगे। बच्चा बीमार हो तो यहीं लिखें।`,
+        quick_replies: ["OK 👍", "Change date / तारीख बदलें"],
+      });
+    }
+
     return { token, visitId };
   });
 
