@@ -39,6 +39,13 @@ export async function handleCapacity(request: Request) {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return new Response("AI is not configured.", { status: 500 });
 
+  // Staff only: verify the signed-in session before spending AI credits.
+  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  if (!token) return new Response("Please sign in to the clinic desk.", { status: 401 });
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: u, error: uErr } = await supabaseAdmin.auth.getUser(token);
+  if (uErr || !u.user) return new Response("Please sign in to the clinic desk.", { status: 401 });
+
   let input: z.infer<typeof CapacityInput>;
   try {
     input = CapacityInput.parse(await request.json());
