@@ -370,3 +370,68 @@ export const saveCapacity = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ---------- admin panel: team + clinic details/hours ----------
+
+export const listTeam = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await (context.supabase as any).rpc("list_clinic_staff", { _clinic: data.clinicId });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as { user_id: string; email: string; role: string }[];
+  });
+
+export const addStaff = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid(), email: z.string().trim().email().max(255), role: z.enum(["doctor", "desk"]) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: res, error } = await (context.supabase as any).rpc("add_staff_by_email", { _clinic: data.clinicId, _email: data.email, _role: data.role });
+    if (error) throw new Error(error.message);
+    return { result: res as "added" | "not_found" };
+  });
+
+export const removeStaff = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid(), userId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as any).rpc("remove_staff", { _clinic: data.clinicId, _user_id: data.userId });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const Range = z.tuple([z.string().regex(/^\d{2}:\d{2}$/), z.string().regex(/^\d{2}:\d{2}$/)]);
+const Week = z.record(z.enum(["mon", "tue", "wed", "thu", "fri", "sat", "sun"]), z.array(Range).max(4));
+
+export const getClinicProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: s } = await (context.supabase as any)
+      .from("clinic_settings")
+      .select("clinic_name, doctor_name, city, phone, opd_hours, bite_windows, holidays")
+      .eq("clinic_id", data.clinicId)
+      .single();
+    return s as null | { clinic_name: string | null; doctor_name: string | null; city: string | null; phone: string | null; opd_hours: Record<string, [string, string][]>; bite_windows: Record<string, [string, string][]>; holidays: string[] | null };
+  });
+
+export const saveClinicProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      clinicId: z.string().uuid(),
+      clinic_name: z.string().trim().min(2).max(120),
+      doctor_name: z.string().trim().max(120),
+      city: z.string().trim().max(120),
+      phone: z.string().trim().max(20),
+      opd_hours: Week,
+      bite_windows: Week,
+      holidays: z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).max(60),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { clinicId, ...patch } = data;
+    const { error } = await (context.supabase as any).from("clinic_settings").update(patch).eq("clinic_id", clinicId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
