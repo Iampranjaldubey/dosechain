@@ -19,3 +19,6 @@
 - [x] Staff-only clinic: login required + real staff role check for /clinic and /clinic/capacity
 - [x] Every booking creates a WhatsApp thread (confirmation message) + reminder sweep picks it up
 - [x] Dashboard: Today, recall list, vials used, watchdog — real data
+
+- [ ] Reminder sweep: scheduled messages for every booked appointment, dashboard counts update
+- [ ] E2E: sign up, confirm booking on Today, check parent child timeline
