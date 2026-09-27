@@ -13,13 +13,11 @@ import {
   type PlannedVisit,
 } from "./dosechain";
 
-type AdminClient = Awaited<
-  ReturnType<typeof import("@/integrations/supabase/client.server")["getAdmin"]>
->;
+type AdminClient = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
 
 async function admin(): Promise<AdminClient> {
   const mod = await import("@/integrations/supabase/client.server");
-  return mod.getAdmin();
+  return mod.supabaseAdmin;
 }
 
 /** "now" for planning: demo clock override when set, else real time. */
@@ -94,7 +92,7 @@ async function loadCatalogueAndSettings() {
 export const getBookingCatalogue = createServerFn({ method: "GET" }).handler(async () => {
   const { cat, settings } = await loadCatalogueAndSettings();
   return {
-    catalogue: cat.map((d) => ({
+    catalogue: (cat as { code: string; label_en: string; label_hi: string; series: string; rec_age_d: number; min_age_d: number; min_gap_prev_d: number | null; is_live: boolean; notes: string | null }[]).map((d) => ({
       code: d.code,
       labelEn: d.label_en,
       labelHi: d.label_hi,
