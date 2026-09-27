@@ -32,3 +32,7 @@
 - [x] Input validation sweep: phone numbers exactly 10 digits (Indian mobile), other length/format limits across all forms + server
 - [x] Child Health Passport (in progress)
 - [x] Hero image: revert to original thick rounded border
+- [ ] Second clinic + desk account isolation check
+- [x] Staff invite + approve form (Settings)
+- [x] Staff "My clinics" view
+- [x] Redesign sparse pages (sign-in first): fill empty space with crafted layout, avoid generic AI patterns
