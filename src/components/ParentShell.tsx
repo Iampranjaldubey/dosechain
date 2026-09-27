@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Logo, Footprint } from "@/components/Footprint";
 import { LangToggle } from "@/components/LangToggle";
 import { useLang } from "@/lib/i18n";
+import { Doodles, Mascot } from "@/components/Mascot";
 
 /** Shared frame for every parent-facing page: sticky glass header, soft brand band, footer. */
 export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebrow?: string }) {
@@ -11,6 +12,7 @@ export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebro
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-secondary/70 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-72"><Doodles /></div>
       <Footprint className="pointer-events-none absolute right-[8%] top-24 hidden h-10 w-10 rotate-12 text-primary/15 md:block" />
       <Footprint className="pointer-events-none absolute right-[14%] top-40 hidden h-8 w-8 -rotate-6 text-primary/10 md:block" />
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
@@ -27,7 +29,7 @@ export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebro
       <main className="relative flex-1">{children}</main>
       <footer className="relative mt-16 border-t border-border bg-card/60">
         <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Nanhe Kadam Child Clinic · Vijay Nagar, Indore</span>
+          <span className="flex items-center gap-2"><Mascot className="h-8 w-8" />© 2026 Nanhe Kadam Child Clinic · Vijay Nagar, Indore</span>
           <span>{hi ? "IAP-ACVIP 2023 व NCDC रेबीज़ दिशानिर्देश · डॉक्टर हर योजना की पुष्टि करते हैं" : "IAP-ACVIP 2023 & NCDC rabies guidelines · the doctor confirms every plan"}</span>
         </div>
       </footer>
