@@ -20,7 +20,7 @@ export interface BiteDosePlan {
   date: ISODate;
   /** null for day 0 (immediate walk-in) */
   window: [string, string] | null;
-  flag?: "extra_window_needed";
+  flag?: "extra_window_needed" | undefined;
 }
 
 export function planBiteCourse(
