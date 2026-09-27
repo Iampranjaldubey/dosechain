@@ -255,7 +255,7 @@ export const getChildByToken = createServerFn({ method: "GET" })
 
     return {
       child: { name: child.name, dob: child.dob, sex: child.sex },
-      doses: (doses ?? []).map((d) => ({
+      doses: ((doses ?? []) as { code: string; status: string; due_date: string | null; given_on: string | null; where_given: string | null; visit_id: string | null }[]).map((d) => ({
         code: d.code,
         status: d.status,
         dueDate: d.due_date,
@@ -263,14 +263,14 @@ export const getChildByToken = createServerFn({ method: "GET" })
         whereGiven: d.where_given,
         visitId: d.visit_id,
       })),
-      visits: (visits ?? []).map((v) => ({
+      visits: ((visits ?? []) as { id: string; day: string; slot_label: string | null; status: string }[]).map((v) => ({
         id: v.id,
         day: v.day,
         slotLabel: v.slot_label,
         status: v.status,
       })),
       catalogue: Object.fromEntries(
-        (cat ?? []).map((c) => [c.code, { en: c.label_en, hi: c.label_hi }]),
+        ((cat ?? []) as { code: string; label_en: string; label_hi: string }[]).map((c) => [c.code, { en: c.label_en, hi: c.label_hi }]),
       ),
       clinic: settings,
     };
@@ -294,7 +294,7 @@ export const getBiteCaseByToken = createServerFn({ method: "GET" })
       a.from("rabies_regimens").select("code, label_en, label_hi, route"),
       a.from("clinic_settings").select("clinic_name, phone, city, bite_windows").eq("id", 1).single(),
     ]);
-    const regimen = (regimens ?? []).find((r) => r.code === bc.regimen);
+    const regimen = ((regimens ?? []) as { code: string; label_en: string; label_hi: string; route: string }[]).find((r) => r.code === bc.regimen);
 
     return {
       case: {
