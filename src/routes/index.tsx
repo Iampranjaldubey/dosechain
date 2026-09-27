@@ -178,8 +178,8 @@ function Index() {
       {/* how it works — connected steps */}
       <section id="how" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20">
         <Reveal>
-          <h2 className="font-display text-3xl md:text-4xl">{t.howTitle}</h2>
-          <MascotSays className="mt-5">{t.mascotHow}</MascotSays>
+          <h2 className="font-display text-3xl md:text-4xl"><span className="crayon-underline">{t.howTitle}</span></h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">{t.howIntro}</p>
         </Reveal>
         <div className="relative mt-10 grid gap-8 md:grid-cols-3">
           <div className="absolute left-0 right-0 top-5 hidden border-t-2 border-dashed border-primary/25 md:block" aria-hidden />

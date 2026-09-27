@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Logo, Footprint } from "@/components/Footprint";
 import { LangToggle } from "@/components/LangToggle";
 import { useLang } from "@/lib/i18n";
-import { Doodles, Mascot } from "@/components/Mascot";
+import { Doodles } from "@/components/KidVibe";
 
 /** Shared frame for every parent-facing page: sticky glass header, soft brand band, footer. */
 export function ParentShell({ children, eyebrow }: { children: ReactNode; eyebrow?: string }) {
