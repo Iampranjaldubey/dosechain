@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getDashboard } from "@/lib/clinic.functions";
 import { cn } from "@/lib/utils";
+import { useClinic } from "@/lib/clinic-context";
 
 export const Route = createFileRoute("/clinic/recall")({
   head: () => ({
@@ -21,7 +22,8 @@ export const Route = createFileRoute("/clinic/recall")({
 const fmt = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short", weekday: "short" });
 
 function RecallPage() {
-  const q = useQuery({ queryKey: ["dashboard"], queryFn: () => getDashboard() });
+  const { clinicId } = useClinic();
+  const q = useQuery({ queryKey: ["dash", clinicId], queryFn: () => getDashboard({ data: { clinicId } }) });
   const [filter, setFilter] = useState<"all" | "urgent">("all");
   if (q.isLoading) return <p className="text-muted-foreground">Loading recall list…</p>;
   if (q.error || !q.data) return <p className="text-destructive">Couldn't load the recall list. <button className="underline" onClick={() => q.refetch()}>Try again</button></p>;
