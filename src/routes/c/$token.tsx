@@ -85,7 +85,12 @@ function ChildPage() {
 
         {nextVisit && (
           <div className="mt-6 rounded-2xl border-2 border-primary/30 bg-secondary/60 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-primary">{t.nextVisit}</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-bold uppercase tracking-wide text-primary">{t.nextVisit}</p>
+              <span className={nextVisit.status === "confirmed" ? "rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground" : "rounded-full bg-accent/30 px-2.5 py-0.5 text-xs font-semibold"}>
+                {nextVisit.status === "confirmed" ? (lang === "hi" ? "✓ क्लिनिक ने पक्का किया" : "✓ Confirmed by clinic") : (lang === "hi" ? "पुष्टि बाकी" : "Awaiting confirmation")}
+              </span>
+            </div>
             <p className="mt-1 font-display text-2xl">{fmtDate(nextVisit.day, lang)}</p>
             {nextVisit.slotLabel && (
               <p className="text-sm text-muted-foreground">{nextVisit.slotLabel}</p>
