@@ -96,7 +96,7 @@ function ChildPage() {
         {/* footprint timeline */}
         <ol className="mt-8">
           {groups.map(([date, doses], i) => {
-            const main = doses[0].status;
+            const main = doses[0]?.status ?? "planned";
             return (
               <li key={date + i} className="relative flex gap-4 pb-7">
                 <div className="flex flex-col items-center">
@@ -127,8 +127,8 @@ function ChildPage() {
                       >
                         {data.catalogue[d.code]
                           ? lang === "hi"
-                            ? data.catalogue[d.code].hi
-                            : data.catalogue[d.code].en
+                            ? data.catalogue[d.code]?.hi
+                            : data.catalogue[d.code]?.en
                           : d.code}
                         {" · "}
                         {statusLabel[d.status] ?? d.status}
