@@ -68,6 +68,9 @@ function Index() {
           </nav>
           <div className="flex items-center gap-2">
             <LangToggle />
+            <Link to="/start" className="hidden min-h-10 items-center rounded-full px-3 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground sm:inline-flex sm:text-sm">
+              {t.returningTitle}
+            </Link>
             <Link
               to="/start"
               className="inline-flex min-h-10 items-center rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md sm:px-5 sm:text-sm"
@@ -94,6 +97,12 @@ function Index() {
               className="inline-flex min-h-12 items-center rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg"
             >
               {t.bookVaccine}
+            </Link>
+            <Link
+              to="/start"
+              className="inline-flex min-h-12 items-center rounded-full border-2 border-border px-7 text-base font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:bg-secondary"
+            >
+              {t.returningTitle}
             </Link>
             <a
               href="#bite"
