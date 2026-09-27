@@ -135,9 +135,101 @@ export const listThreads = createServerFn({ method: "POST" })
     const sb = context.supabase as any;
     const { data } = await sb
       .from("messages")
-      .select("id, direction, kind, body_en, created_at, parsed, guardians(name, children(name, public_token), bite_cases(patient_name, public_token))")
+      .select("id, direction, kind, body_en, created_at, parsed, draft_reply, status, guardians(name, children(name, public_token), bite_cases(patient_name, public_token))")
       .eq("direction", "in")
       .order("created_at", { ascending: false })
       .limit(30);
     return data ?? [];
+  });
+
+// ---------- risk radar + morning briefing ----------
+async function computeRisk(sb: any) {
+  const { nowIso, todayIst } = await import("./followup.server");
+  const { riskScore } = await import("./risk");
+  const { addDays } = await import("./dosechain");
+  const today = todayIst(await nowIso(sb));
+  const horizon = addDays(today, 3);
+  const rows: { id: string; name: string; kind: "vaccine" | "bite"; due: string; token: string | null; guardianId: string | null; score: number; level: string; reasons: string[] }[] = [];
+
+  const { data: visits } = await sb.from("visits").select("id, day, status, paid_at, child_id, children(name, public_token, guardian_id)").eq("kind", "vaccine").in("status", ["booked", "confirmed"]).lte("day", horizon).gte("day", addDays(today, -14));
+  for (const v of (visits ?? []) as any[]) {
+    if (!v.children) continue;
+    const [{ count: misses }, { data: msgs }] = await Promise.all([
+      sb.from("visits").select("id", { count: "exact", head: true }).eq("child_id", v.child_id).eq("status", "missed"),
+      sb.from("messages").select("direction, created_at").eq("guardian_id", v.children.guardian_id).order("created_at", { ascending: false }).limit(6),
+    ]);
+    let unanswered = 0;
+    for (const m of (msgs ?? []) as any[]) { if (m.direction === "in") break; unanswered++; }
+    const r = riskScore({ kind: "vaccine", daysOverdue: Math.max(0, (Date.parse(today) - Date.parse(v.day)) / 864e5), pastMisses: misses ?? 0, unansweredReminders: Math.min(unanswered, 3), confirmed: v.status === "confirmed", paid: !!v.paid_at });
+    rows.push({ id: v.id, name: v.children.name, kind: "vaccine", due: v.day, token: v.children.public_token, guardianId: v.children.guardian_id, ...r });
+  }
+  const { data: doses } = await sb.from("bite_doses").select("id, day_offset, due_date, status, bite_cases!inner(patient_name, public_token, guardian_id, category, status)").in("status", ["booked", "planned"]).lte("due_date", horizon).eq("bite_cases.status", "active").gt("day_offset", 0);
+  for (const d of (doses ?? []) as any[]) {
+    const overdue = Math.max(0, (Date.parse(today) - Date.parse(d.due_date)) / 864e5);
+    const r = riskScore({ kind: "bite", daysOverdue: overdue, pastMisses: overdue > 0 ? 1 : 0, unansweredReminders: 1, biteCategory: d.bite_cases.category, confirmed: false, paid: false });
+    rows.push({ id: d.id, name: `${d.bite_cases.patient_name} · day-${d.day_offset}`, kind: "bite", due: d.due_date, token: d.bite_cases.public_token, guardianId: d.bite_cases.guardian_id, ...r });
+  }
+  rows.sort((x, y) => y.score - x.score);
+  return { today, rows };
+}
+
+export const getRiskRadar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => (await computeRisk(context.supabase)).rows.slice(0, 12));
+
+export const getBriefing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = context.supabase as any;
+    const { today, rows } = await computeRisk(sb);
+    const [{ count: visitsToday }, { count: pending }, { count: questions }] = await Promise.all([
+      sb.from("visits").select("id", { count: "exact", head: true }).eq("day", today),
+      sb.from("plan_changes").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      sb.from("messages").select("id", { count: "exact", head: true }).not("draft_reply", "is", null).eq("status", "received"),
+    ]);
+    const high = rows.filter((r) => r.level === "high");
+    const facts = { visitsToday, pendingApprovals: pending, questionsWaiting: questions, highRisk: high.slice(0, 5).map((h) => `${h.name} (${h.reasons.join(", ")})`), bitesDue: rows.filter((r) => r.kind === "bite").length };
+    const fallback = `${visitsToday ?? 0} visits today · ${facts.bitesDue} rabies doses due soon · ${high.length} likely no-shows${high[0] ? ` (top: ${high[0].name})` : ""} · ${pending ?? 0} plan changes and ${questions ?? 0} parent questions waiting for you.`;
+    try {
+      const { aiText } = await import("./ai.server");
+      const text = await aiText(
+        "You are the clinic's chief of staff. Write the paediatrician's morning briefing: 3 short bullet lines starting with '• ', most urgent first (rabies safety > overdue infants > admin). Under 70 words. Plain text. Use names given. No greetings.",
+        JSON.stringify(facts),
+      );
+      return { text: text.trim() || fallback, ai: true };
+    } catch {
+      return { text: fallback, ai: false };
+    }
+  });
+
+export const nudgeHighRisk = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = context.supabase as any;
+    const { rows } = await computeRisk(sb);
+    let n = 0;
+    for (const r of rows.filter((x) => x.level === "high" && x.guardianId)) {
+      await sb.from("messages").insert({
+        guardian_id: r.guardianId, direction: "out", kind: "nudge", status: "sent", sent_at: new Date().toISOString(),
+        body_en: r.kind === "bite" ? `Important: ${r.name.split(" ·")[0]}'s rabies dose must not be skipped. Reply 1 to confirm today, or 2 and we'll call you.` : `Hi! ${r.name}'s vaccines are waiting. Reply YES to confirm, or tell us a better day — we'll re-plan safely.`,
+        body_hi: r.kind === "bite" ? `ज़रूरी: ${r.name.split(" ·")[0]} का रेबीज़ टीका न छोड़ें। आज आने के लिए 1 लिखें, या 2 — हम कॉल करेंगे।` : `नमस्ते! ${r.name} के टीके बाकी हैं। पुष्टि के लिए "हाँ" लिखें, या बेहतर दिन बताएं।`,
+        quick_replies: r.kind === "bite" ? ["1 — Coming today", "2 — Call me"] : ["Yes / हाँ", "Change date / तारीख बदलें"],
+      });
+      await sb.from("impact_events").insert({ kind: "recall_call_avoided", minutes_saved: 4 });
+      n++;
+    }
+    return { sent: n };
+  });
+
+export const sendDraftReply = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ messageId: z.string().uuid(), en: z.string().min(1).max(800), hi: z.string().min(1).max(800) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase as any;
+    const { data: m } = await sb.from("messages").select("guardian_id").eq("id", data.messageId).single();
+    if (!m) throw new Error("Message not found");
+    await sb.from("messages").insert({ guardian_id: m.guardian_id, direction: "out", kind: "doctor_reply", status: "sent", sent_at: new Date().toISOString(), body_en: data.en, body_hi: data.hi });
+    await sb.from("messages").update({ status: "answered" }).eq("id", data.messageId);
+    await sb.from("impact_events").insert({ kind: "auto_confirm", minutes_saved: 5 });
+    return { ok: true };
   });
