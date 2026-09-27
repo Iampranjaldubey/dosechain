@@ -10,6 +10,7 @@ export interface Membership { clinicId: string; clinicName: string; role: string
 export const whoAmI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await (context.supabase as any).rpc("accept_my_invites");
     const { data } = await (context.supabase as any)
       .from("user_roles")
       .select("role, clinic_id, clinics(name)")
@@ -390,7 +391,7 @@ export const addStaff = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: res, error } = await (context.supabase as any).rpc("add_staff_by_email", { _clinic: data.clinicId, _email: data.email, _role: data.role });
     if (error) throw new Error(error.message);
-    return { result: res as "added" | "not_found" };
+    return { result: res as "added" | "invited" };
   });
 
 export const removeStaff = createServerFn({ method: "POST" })
@@ -437,4 +438,55 @@ export const saveClinicProfile = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!upd?.length) throw new Error("Only this clinic's doctor can change these settings.");
     return { ok: true };
+  });
+
+// ---------- invites + staff overview ----------
+
+export const listInvites = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows } = await (context.supabase as any).from("staff_invites").select("id, email, role, created_at").eq("clinic_id", data.clinicId).order("created_at");
+    return (rows ?? []) as { id: string; email: string; role: string; created_at: string }[];
+  });
+
+export const cancelInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as any).from("staff_invites").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Everything the signed-in staff member can see, across their assigned clinics (RLS-scoped). */
+export const getMyOverview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = context.supabase as any;
+    const today = new Date().toISOString().slice(0, 10);
+    const [{ data: roles }, { data: kids }, { data: visits }, { data: settings }] = await Promise.all([
+      sb.from("user_roles").select("role, clinic_id, clinics(name, city)").eq("user_id", context.userId),
+      sb.from("children").select("id, name, dob, public_token, clinic_id").order("name").limit(500),
+      sb.from("visits").select("id, day, slot_label, status, kind, clinic_id, children(name, public_token)").gte("day", today).in("status", ["booked", "confirmed", "planned"]).order("day").limit(200),
+      sb.from("clinic_settings").select("clinic_id, opd_hours, capacity"),
+    ]);
+    return ((roles ?? []) as any[]).map((r) => {
+      const s = ((settings ?? []) as any[]).find((x) => x.clinic_id === r.clinic_id);
+      const hours = Object.values((s?.opd_hours ?? {}) as Record<string, [string, string][]>).flat();
+      const weeklyMinutes = hours.reduce((m, [a, b]) => m + (Number(b.slice(0, 2)) * 60 + Number(b.slice(3))) - (Number(a.slice(0, 2)) * 60 + Number(a.slice(3))), 0);
+      const vs = ((visits ?? []) as any[]).filter((v) => v.clinic_id === r.clinic_id);
+      const next7 = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+      return {
+        clinicId: r.clinic_id as string,
+        clinicName: (r.clinics?.name ?? "Clinic") as string,
+        city: (r.clinics?.city ?? null) as string | null,
+        role: r.role as string,
+        children: ((kids ?? []) as any[]).filter((k) => k.clinic_id === r.clinic_id).map((k) => ({ id: k.id as string, name: k.name as string, dob: k.dob as string, token: k.public_token as string })),
+        upcoming: vs.slice(0, 20).map((v) => ({ id: v.id as string, day: v.day as string, slot: v.slot_label as string | null, status: v.status as string, kind: v.kind as string, child: (v.children?.name ?? null) as string | null, token: (v.children?.public_token ?? null) as string | null })),
+        visitsNext7: vs.filter((v) => v.day <= next7).length,
+        weeklyOpenHours: Math.round(weeklyMinutes / 6) / 10,
+        capacity: (s?.capacity ?? null) as any,
+      };
+    });
   });
