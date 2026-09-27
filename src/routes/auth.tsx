@@ -63,7 +63,7 @@ function AuthPage() {
             ))}
           </ul>
         </div>
-        <dl className="mt-8 grid max-w-lg grid-cols-3 gap-4 border-t border-primary-foreground/20 pt-6 text-sm">
+        <dl className="mt-8 hidden max-w-lg md:grid grid-cols-3 gap-4 border-t border-primary-foreground/20 pt-6 text-sm">
           <div><dt className="text-primary-foreground/75">Recall</dt><dd className="font-display text-2xl">No calls</dd></div>
           <div><dt className="text-primary-foreground/75">Re-plans</dt><dd className="font-display text-2xl">Doctor OK'd</dd></div>
           <div><dt className="text-primary-foreground/75">Parents</dt><dd className="font-display text-2xl">WhatsApp</dd></div>

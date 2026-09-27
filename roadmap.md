@@ -35,4 +35,4 @@
 - [ ] Second clinic + desk account isolation check
 - [x] Staff invite + approve form (Settings)
 - [x] Staff "My clinics" view
-- [ ] Redesign sparse pages (sign-in first): fill empty space with crafted layout, avoid generic AI patterns
+- [x] Redesign sparse pages (sign-in first): fill empty space with crafted layout, avoid generic AI patterns
