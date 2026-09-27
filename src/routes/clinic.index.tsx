@@ -99,6 +99,7 @@ function Today() {
                   ))}
                 </div>
                 <p className="mt-2 text-sm font-semibold">{vial.sites_total - vial.sites_used} of {vial.sites_total} doses left in this vial</p>
+                <p className="text-xs text-muted-foreground">{data.vialsUsedToday} dose{data.vialsUsedToday === 1 ? "" : "s"} used from vials opened today</p>
               </>
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">No open vial. One opens automatically with the next bite dose.</p>
@@ -119,6 +120,24 @@ function Today() {
           </div>
         </section>
       </div>
+
+      <section className="mt-8 rounded-3xl border border-border bg-card p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-display text-2xl">Recall list</h2>
+          <p className="text-sm text-muted-foreground">Missed or overdue vaccine visits — reminders run automatically, no calls needed</p>
+        </div>
+        {(data.recall as any[]).length === 0 ? <p className="mt-3 text-sm text-muted-foreground">Nobody overdue. 🎉</p> : (
+          <ul className="mt-3 divide-y divide-border">
+            {(data.recall as any[]).map((r) => (
+              <li key={r.id} className="flex items-center gap-3 py-2 text-sm">
+                <span className={cn("w-20 shrink-0 rounded-full py-0.5 text-center text-xs font-bold", r.daysLate > 14 ? "bg-destructive/15 text-destructive" : "bg-accent/25")}>{r.daysLate}d late</span>
+                <span className="flex-1"><b>{r.name}</b> <span className="text-muted-foreground">· due {fmt(r.day)} · {r.status}</span></span>
+                <a href={`/wa/${r.token}`} target="_blank" rel="noreferrer" className="text-xs text-primary">Chat</a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="mt-8 rounded-3xl border border-border bg-card p-6">
         <h2 className="font-display text-2xl">Bite lane — active courses</h2>

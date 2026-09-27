@@ -43,7 +43,21 @@ function ClinicLayout() {
 
   const me = useQuery({ queryKey: ["me"], queryFn: () => whoAmI(), enabled: ready });
 
-  if (!ready) return <div className="grid min-h-screen place-items-center text-muted-foreground">Loading…</div>;
+  if (!ready || me.isLoading) return <div className="grid min-h-screen place-items-center text-muted-foreground">Loading…</div>;
+  if (me.data && me.data.roles.length === 0)
+    return (
+      <div className="grid min-h-screen place-items-center bg-background px-4">
+        <div className="max-w-md rounded-3xl border border-border bg-card p-8 text-center">
+          <Logo />
+          <h1 className="mt-6 font-display text-3xl">Waiting for approval</h1>
+          <p className="mt-2 text-muted-foreground">Your account ({me.data.email}) is registered. The doctor needs to approve it before you can see clinic data.</p>
+          <div className="mt-6 flex justify-center gap-3">
+            <button onClick={() => me.refetch()} className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">Check again</button>
+            <button onClick={() => supabase.auth.signOut()} className="rounded-full border border-border px-5 py-2 text-sm">Sign out</button>
+          </div>
+        </div>
+      </div>
+    );
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-card/85 backdrop-blur">
