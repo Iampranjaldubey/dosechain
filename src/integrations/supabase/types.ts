@@ -786,6 +786,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_staff_by_email: {
+        Args: {
+          _clinic: string
+          _email: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: string
+      }
       approve_staff: {
         Args: { _approve: boolean; _clinic: string; _user_id: string }
         Returns: undefined
@@ -797,6 +805,18 @@ export type Database = {
       is_any_staff: { Args: never; Returns: boolean }
       is_clinic_doctor: { Args: { _clinic: string }; Returns: boolean }
       is_staff_of: { Args: { _clinic: string }; Returns: boolean }
+      list_clinic_staff: {
+        Args: { _clinic: string }
+        Returns: {
+          email: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }[]
+      }
+      remove_staff: {
+        Args: { _clinic: string; _user_id: string }
+        Returns: undefined
+      }
       request_join_clinic: { Args: { _clinic: string }; Returns: undefined }
     }
     Enums: {
