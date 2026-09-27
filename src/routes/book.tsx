@@ -2,7 +2,7 @@ import { ParentShell } from "@/components/ParentShell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { useLang } from "@/lib/i18n";
+import { useLang, fmtSlot } from "@/lib/i18n";
 import { LangToggle } from "@/components/LangToggle";
 import { Logo, Footprint } from "@/components/Footprint";
 import { getBookingCatalogue, createBooking, bookForChild } from "@/lib/parent.functions";
@@ -123,7 +123,7 @@ function BookPage() {
       const d = addDays(today, i);
       const wins = data.settings.opdHours[WEEKDAYS[dow(d)] ?? "sun"] ?? [];
       if (wins.length === 0 || eng.holidays.includes(d)) continue;
-      out.push({ date: d, slots: wins.map((w: [string, string]) => `${w[0]}–${w[1]}`) });
+      out.push({ date: d, slots: wins.map((w: [string, string]) => fmtSlot(`${w[0]}–${w[1]}`)) });
     }
     return out;
   }, [data, eng, today]);
@@ -493,7 +493,7 @@ function BookExisting({ token, catalogue }: { token: string; catalogue: NonNulla
       const d = addDays(today, i);
       const wins = catalogue.settings.opdHours[WEEKDAYS[dow(d)] ?? "sun"] ?? [];
       if (wins.length === 0 || catalogue.settings.holidays.includes(d)) continue;
-      out.push({ date: d, slots: wins.map((w: [string, string]) => `${w[0]}–${w[1]}`) });
+      out.push({ date: d, slots: wins.map((w: [string, string]) => fmtSlot(`${w[0]}–${w[1]}`)) });
     }
     return out;
   }, [catalogue, today]);
