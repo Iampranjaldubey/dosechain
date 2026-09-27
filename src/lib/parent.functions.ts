@@ -62,18 +62,18 @@ function engineSettings(s: SettingsRow): EngineSettings {
 function toDoseDef(r: {
   code: string;
   series: string | null;
-  rec_age_d: number;
-  min_age_d: number;
+  rec_age_d: number | null;
+  min_age_d: number | null;
   min_gap_prev_d: number | null;
-  is_live: boolean;
+  is_live: boolean | null;
 }): DoseDef {
   return {
     code: r.code,
     series: r.series ?? r.code,
-    recAgeD: r.rec_age_d,
-    minAgeD: r.min_age_d,
+    recAgeD: r.rec_age_d ?? 0,
+    minAgeD: r.min_age_d ?? 0,
     minGapPrevD: r.min_gap_prev_d,
-    isLive: r.is_live,
+    isLive: r.is_live ?? false,
   };
 }
 
