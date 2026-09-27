@@ -54,7 +54,7 @@ function Today() {
         </Link>
       )}
 
-      <section className="mt-6 grid gap-4 sm:grid-cols-4">
+      <section className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
         <Stat label="Staff time saved (4 wks)" value={`${Math.round(data.impact.minutes / 60)} h`} strong />
         <Stat label="Reminders sent" value={data.impact.reminders} />
         <Stat label="Reminders queued" value={data.scheduledCount} />
