@@ -364,11 +364,12 @@ export const saveCapacity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ clinicId: z.string().uuid(), capacity: z.any() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { error } = await (context.supabase as any)
+    const { data: upd, error } = await (context.supabase as any)
       .from("clinic_settings")
       .update({ capacity: data.capacity })
-      .eq("clinic_id", data.clinicId);
+      .eq("clinic_id", data.clinicId).select("clinic_id");
     if (error) throw new Error(error.message);
+    if (!upd?.length) throw new Error("Only this clinic's doctor can change these settings.");
     return { ok: true };
   });
 
@@ -432,7 +433,8 @@ export const saveClinicProfile = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { clinicId, ...patch } = data;
-    const { error } = await (context.supabase as any).from("clinic_settings").update(patch).eq("clinic_id", clinicId);
+    const { data: upd, error } = await (context.supabase as any).from("clinic_settings").update(patch).eq("clinic_id", clinicId).select("clinic_id");
     if (error) throw new Error(error.message);
+    if (!upd?.length) throw new Error("Only this clinic's doctor can change these settings.");
     return { ok: true };
   });
