@@ -192,18 +192,18 @@ export function reshuffle(
 ): ReshuffleResult {
   const fixedHistory: GivenDose[] = [...history];
   for (let i = 0; i < visitIndex; i++) {
-    for (const code of visits[i].doses)
-      fixedHistory.push({ code, givenOn: visits[i].date });
+    for (const code of visits[i]!.doses)
+      fixedHistory.push({ code, givenOn: visits[i]!.date });
   }
 
   const defByCode = new Map(catalogue.map((d) => [d.code, d]));
-  const movedDoses = visits[visitIndex].doses;
+  const movedDoses = visits[visitIndex]!.doses;
 
   // Earliest allowed date for the moved visit, given fixed earlier visits.
   const seriesLast: Record<string, ISODate> = {};
   for (const h of fixedHistory) {
     const def = defByCode.get(h.code);
-    if (def && (!seriesLast[def.series] || seriesLast[def.series] < h.givenOn))
+    if (def && (!seriesLast[def.series] || (seriesLast[def.series] ?? "") < h.givenOn))
       seriesLast[def.series] = h.givenOn;
   }
   let movedDate = requestedDate;
