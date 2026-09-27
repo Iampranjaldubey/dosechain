@@ -54,109 +54,124 @@ const fmt = (d: string) =>
 
 // ---------------- reminder sweep + watchdog ----------------
 
-export async function runAutomations(a: Db) {
+export async function runAutomations(a: Db, clinicId?: string) {
   const today = todayIst(await nowIso(a));
   const tomorrow = addDays(today, 1);
-  const { s, bite } = await loadSettings(a);
   const counts = { reminders: 0, biteReminders: 0, rescues: 0, scheduledSent: 0 };
   const nowStr = await nowIso(a);
 
   // 0. deliver scheduled messages whose time has come (demo clock aware)
-  const { data: dueMsgs } = await a.from("messages").select("id").eq("status", "scheduled").lte("scheduled_for", nowStr);
+  const { data: dueMsgs } = await a.from("messages").select("id, clinic_id").eq("status", "scheduled").lte("scheduled_for", nowStr);
   for (const m of (dueMsgs ?? []) as any[]) {
     await a.from("messages").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", m.id);
-    await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: s.mins_per_recall_call ?? 4 });
+    await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: 4, clinic_id: m.clinic_id });
     counts.scheduledSent++;
   }
 
-  // 1. vaccine reminders for tomorrow (booked or confirmed)
-  const { data: visits } = await a
-    .from("visits")
-    .select("id, day, slot_label, child_id, children(name, guardian_id)")
-    .eq("kind", "vaccine")
-    .eq("day", tomorrow)
-    .in("status", ["booked", "confirmed"]);
-  for (const v of (visits ?? []) as any[]) {
-    const { count } = await a.from("messages").select("id", { count: "exact", head: true }).eq("visit_id", v.id).eq("kind", "reminder_1d").neq("status", "scheduled");
-    if (count || !v.children) continue;
-    await a.from("messages").delete().eq("visit_id", v.id).eq("kind", "reminder_1d").eq("status", "scheduled");
-    await send(
-      a,
-      v.children.guardian_id,
-      "reminder_1d",
-      `Reminder: ${v.children.name}'s vaccines are tomorrow (${fmt(v.day)}) at ${v.slot_label ?? "OPD"}. Reply YES to confirm, or tell us if the child is unwell.`,
-      `याद दिलाना: ${v.children.name} के टीके कल (${fmt(v.day)}) ${v.slot_label ?? "OPD"} पर हैं। पुष्टि के लिए "हाँ" लिखें, या बच्चा बीमार हो तो बताएं।`,
-      { visit_id: v.id, quick_replies: ["Yes / हाँ", "Fever / बुखार है", "Change date / तारीख बदलें"] },
-    );
-    await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: s.mins_per_recall_call ?? 4 });
-    counts.reminders++;
+  // sweep one clinic, or every clinic visible to the caller
+  let clinics: string[];
+  if (clinicId) clinics = [clinicId];
+  else {
+    const { data: rows } = await a.from("clinic_settings").select("clinic_id");
+    clinics = ((rows ?? []) as any[]).map((r) => r.clinic_id as string);
   }
 
-  // 2. bite reminders for doses due today/tomorrow
-  const { data: due } = await a
-    .from("bite_doses")
-    .select("id, day_offset, due_date, bite_cases!inner(patient_name, guardian_id, status)")
-    .in("due_date", [today, tomorrow])
-    .eq("status", "booked")
-    .gt("day_offset", 0)
-    .eq("bite_cases.status", "active");
-  for (const d of (due ?? []) as any[]) {
-    const { count } = await a.from("messages").select("id", { count: "exact", head: true }).contains("parsed", { bite_dose_id: d.id });
-    if (count) continue;
-    const when = d.due_date === today ? "today" : "tomorrow";
-    const whenHi = d.due_date === today ? "आज" : "कल";
-    await send(
-      a,
-      d.bite_cases.guardian_id,
-      "bite_reminder",
-      `${d.bite_cases.patient_name}: day-${d.day_offset} rabies dose is due ${when}. Please come in the bite window (morning 10:00–10:45 AM or evening 5:30–6:00 PM IST). Do not skip — the gap matters.`,
-      `${d.bite_cases.patient_name}: रेबीज़ का दिन-${d.day_offset} टीका ${whenHi} है। कृपया बाइट विंडो (सुबह 10:00–10:45 या शाम 5:30–6:00 IST) में आएं। टीका न छोड़ें।`,
-      { parsed: { bite_dose_id: d.id } },
-    );
-    await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: s.mins_per_recall_call ?? 4 });
-    counts.biteReminders++;
-  }
+  for (const cid of clinics) {
+    const { s, bite } = await loadSettings(a, cid);
+    const mins = s.mins_per_recall_call ?? 4;
 
-  // 3. watchdog: missed bite doses
-  const { data: missed } = await a
-    .from("bite_doses")
-    .select("id, bite_case_id, day_offset, due_date, visit_id, bite_cases!inner(patient_name, guardian_id, status)")
-    .lt("due_date", today)
-    .in("status", ["booked", "planned"])
-    .eq("bite_cases.status", "active");
-  for (const m of (missed ?? []) as any[]) {
-    const { count } = await a
-      .from("plan_changes")
-      .select("id", { count: "exact", head: true })
-      .eq("bite_case_id", m.bite_case_id)
-      .eq("status", "pending");
-    if (count) continue;
-    if (m.visit_id) await a.from("visits").update({ status: "missed" }).eq("id", m.visit_id);
-    const { data: all } = await a.from("bite_doses").select("*").eq("bite_case_id", m.bite_case_id).order("day_offset");
-    const rows = (all ?? []) as any[];
-    const plans: BiteDosePlan[] = rows.map((r) => ({ offset: r.day_offset, date: r.due_date, window: null }));
-    const idx = rows.findIndex((r) => r.id === m.id);
-    const next = rescheduleMissedDose(plans, idx, today, bite, s.holidays ?? []);
-    const changes = rows
-      .map((r, i) => ({ doseId: r.id, offset: r.day_offset, oldDate: r.due_date, newDate: next[i]!.date }))
-      .filter((c, i) => i >= idx && c.oldDate !== c.newDate);
-    const diff = { type: "bite", patient: m.bite_cases.patient_name, changes };
-    const { data: pc } = await a
-      .from("plan_changes")
-      .insert({ bite_case_id: m.bite_case_id, reason: `Missed day-${m.day_offset} dose (${fmt(m.due_date)})`, diff })
-      .select("id")
-      .single();
-    const newDate = changes[0]?.newDate ?? today;
-    await send(
-      a,
-      m.bite_cases.guardian_id,
-      "bite_rescue",
-      `${m.bite_cases.patient_name}, we missed you for the day-${m.day_offset} rabies dose. It is still effective if taken soon — please come on ${fmt(newDate)} in the bite window. Reply OK.`,
-      `${m.bite_cases.patient_name}, दिन-${m.day_offset} का रेबीज़ टीका छूट गया। जल्दी लेने पर भी असरदार है — कृपया ${fmt(newDate)} को बाइट विंडो में आएं। "OK" लिखें।`,
-      { quick_replies: ["OK", "Call me / कॉल करें"] },
-    );
-    if (s.auto_approve_bite_rebook && pc) await applyPlanChange(a, pc.id);
-    counts.rescues++;
+    // 1. vaccine reminders for tomorrow (booked or confirmed)
+    const { data: visits } = await a
+      .from("visits")
+      .select("id, day, slot_label, child_id, children(name, guardian_id)")
+      .eq("clinic_id", cid)
+      .eq("kind", "vaccine")
+      .eq("day", tomorrow)
+      .in("status", ["booked", "confirmed"]);
+    for (const v of (visits ?? []) as any[]) {
+      const { count } = await a.from("messages").select("id", { count: "exact", head: true }).eq("visit_id", v.id).eq("kind", "reminder_1d").neq("status", "scheduled");
+      if (count || !v.children) continue;
+      await a.from("messages").delete().eq("visit_id", v.id).eq("kind", "reminder_1d").eq("status", "scheduled");
+      await send(
+        a,
+        v.children.guardian_id,
+        "reminder_1d",
+        `Reminder: ${v.children.name}'s vaccines are tomorrow (${fmt(v.day)}) at ${v.slot_label ?? "OPD"}. Reply YES to confirm, or tell us if the child is unwell.`,
+        `याद दिलाना: ${v.children.name} के टीके कल (${fmt(v.day)}) ${v.slot_label ?? "OPD"} पर हैं। पुष्टि के लिए "हाँ" लिखें, या बच्चा बीमार हो तो बताएं।`,
+        { visit_id: v.id, quick_replies: ["Yes / हाँ", "Fever / बुखार है", "Change date / तारीख बदलें"] },
+      );
+      await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: mins, clinic_id: cid });
+      counts.reminders++;
+    }
+
+    // 2. bite reminders for doses due today/tomorrow
+    const { data: due } = await a
+      .from("bite_doses")
+      .select("id, day_offset, due_date, bite_cases!inner(patient_name, guardian_id, status)")
+      .eq("clinic_id", cid)
+      .in("due_date", [today, tomorrow])
+      .eq("status", "booked")
+      .gt("day_offset", 0)
+      .eq("bite_cases.status", "active");
+    for (const d of (due ?? []) as any[]) {
+      const { count } = await a.from("messages").select("id", { count: "exact", head: true }).contains("parsed", { bite_dose_id: d.id });
+      if (count) continue;
+      const when = d.due_date === today ? "today" : "tomorrow";
+      const whenHi = d.due_date === today ? "आज" : "कल";
+      await send(
+        a,
+        d.bite_cases.guardian_id,
+        "bite_reminder",
+        `${d.bite_cases.patient_name}: day-${d.day_offset} rabies dose is due ${when}. Please come in the bite window (morning 10:00–10:45 AM or evening 5:30–6:00 PM IST). Do not skip — the gap matters.`,
+        `${d.bite_cases.patient_name}: रेबीज़ का दिन-${d.day_offset} टीका ${whenHi} है। कृपया बाइट विंडो (सुबह 10:00–10:45 या शाम 5:30–6:00 IST) में आएं। टीका न छोड़ें।`,
+        { parsed: { bite_dose_id: d.id } },
+      );
+      await a.from("impact_events").insert({ kind: "reminder_sent", minutes_saved: mins, clinic_id: cid });
+      counts.biteReminders++;
+    }
+
+    // 3. watchdog: missed bite doses
+    const { data: missed } = await a
+      .from("bite_doses")
+      .select("id, bite_case_id, day_offset, due_date, visit_id, bite_cases!inner(patient_name, guardian_id, status)")
+      .eq("clinic_id", cid)
+      .lt("due_date", today)
+      .in("status", ["booked", "planned"])
+      .eq("bite_cases.status", "active");
+    for (const m of (missed ?? []) as any[]) {
+      const { count } = await a
+        .from("plan_changes")
+        .select("id", { count: "exact", head: true })
+        .eq("bite_case_id", m.bite_case_id)
+        .eq("status", "pending");
+      if (count) continue;
+      if (m.visit_id) await a.from("visits").update({ status: "missed" }).eq("id", m.visit_id);
+      const { data: all } = await a.from("bite_doses").select("*").eq("bite_case_id", m.bite_case_id).order("day_offset");
+      const rows = (all ?? []) as any[];
+      const plans: BiteDosePlan[] = rows.map((r) => ({ offset: r.day_offset, date: r.due_date, window: null }));
+      const idx = rows.findIndex((r) => r.id === m.id);
+      const next = rescheduleMissedDose(plans, idx, today, bite, s.holidays ?? []);
+      const changes = rows
+        .map((r, i) => ({ doseId: r.id, offset: r.day_offset, oldDate: r.due_date, newDate: next[i]!.date }))
+        .filter((c, i) => i >= idx && c.oldDate !== c.newDate);
+      const diff = { type: "bite", patient: m.bite_cases.patient_name, changes };
+      const { data: pc } = await a
+        .from("plan_changes")
+        .insert({ bite_case_id: m.bite_case_id, clinic_id: cid, reason: `Missed day-${m.day_offset} dose (${fmt(m.due_date)})`, diff })
+        .select("id")
+        .single();
+      const newDate = changes[0]?.newDate ?? today;
+      await send(
+        a,
+        m.bite_cases.guardian_id,
+        "bite_rescue",
+        `${m.bite_cases.patient_name}, we missed you for the day-${m.day_offset} rabies dose. It is still effective if taken soon — please come on ${fmt(newDate)} in the bite window. Reply OK.`,
+        `${m.bite_cases.patient_name}, दिन-${m.day_offset} का रेबीज़ टीका छूट गया। जल्दी लेने पर भी असरदार है — कृपया ${fmt(newDate)} को बाइट विंडो में आएं। "OK" लिखें।`,
+        { quick_replies: ["OK", "Call me / कॉल करें"] },
+      );
+      if (s.auto_approve_bite_rebook && pc) await applyPlanChange(a, pc.id);
+      counts.rescues++;
+    }
   }
   return { today, ...counts };
 }
