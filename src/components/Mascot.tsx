@@ -69,7 +69,7 @@ export function Doodles({ className = "" }: { className?: string }) {
   const cloud = "M7 18h10a4 4 0 0 0 0-8 5 5 0 0 0-9.6-1.4A3.5 3.5 0 0 0 7 18z";
   const items = [
     { d: star, cls: "left-[4%] top-[12%] h-6 w-6 text-[var(--butter)]", delay: "0s" },
-    { d: cloud, cls: "left-[42%] top-[4%] h-12 w-12 text-sky/25", delay: "1.5s" },
+    { d: cloud, cls: "left-[42%] top-[4%] h-12 w-12 text-[var(--mascot-ear)] opacity-60", delay: "1.5s" },
     { d: heart, cls: "right-[6%] top-[58%] h-6 w-6 text-[var(--blush)]", delay: "0.8s" },
     { d: star, cls: "right-[30%] top-[8%] h-4 w-4 text-primary/30", delay: "2.2s" },
     { d: cloud, cls: "left-[8%] bottom-[10%] h-10 w-10 text-primary/15", delay: "3s" },
