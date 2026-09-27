@@ -100,6 +100,10 @@ function ChildPage() {
           );
         })()}
 
+        <Link to="/h/$token" params={{ token }} className="mt-6 flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-primary/40 bg-card px-5 py-4 hover:bg-secondary/40">
+          <span><span className="block font-display text-lg">{lang === "hi" ? "स्वास्थ्य पासपोर्ट" : "Health Passport"}</span><span className="text-sm text-muted-foreground">{lang === "hi" ? "विज़िट, दवाइयाँ, ग्रोथ, रिपोर्ट — किसी भी डॉक्टर को दिखाएँ" : "Visits, medicines, growth, reports — show any doctor"}</span></span>
+          <span className="text-primary">→</span>
+        </Link>
         {nextVisit && (
           <div className="mt-6 rounded-2xl border-2 border-primary/30 bg-secondary/60 p-5">
             <div className="flex items-center justify-between gap-2">

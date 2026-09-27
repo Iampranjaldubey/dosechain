@@ -205,9 +205,9 @@ function Upload({ token, onDone }: { token: string; onDone: () => void }) {
       }));
     }
   };
-  const submit = async () => {
+  const submit = async (): Promise<void> => {
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) return toast.error("File is larger than 10 MB");
+    if (file.size > 10 * 1024 * 1024) { toast.error("File is larger than 10 MB"); return; }
     setBusy(true);
     try {
       const dataUrl = await toB64(file);
