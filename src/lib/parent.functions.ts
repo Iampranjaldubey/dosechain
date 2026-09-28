@@ -33,6 +33,17 @@ function todayIst(iso: string): string {
   return new Date(new Date(iso).getTime() + 5.5 * 3600_000).toISOString().slice(0, 10);
 }
 
+/** Slot label may be "10:00–13:00" or "10:00 AM–1:00 PM"; return ISO start in IST. */
+function startsAt(day: string, label: string): string {
+  const m = label.split(/[–-]/)[0]!.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  let h = m ? Number(m[1]) : 9;
+  const min = m ? m[2]! : "00";
+  const ap = m?.[3]?.toUpperCase();
+  if (ap === "PM" && h < 12) h += 12;
+  if (ap === "AM" && h === 12) h = 0;
+  return `${day}T${String(h).padStart(2, "0")}:${min}:00+05:30`;
+}
+
 const WEEKDAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 interface SettingsRow {
@@ -210,7 +221,7 @@ export const createBooking = createServerFn({ method: "POST" })
           child_id: child.id,
           clinic_id: settings.clinic_id,
           day: data.slotDate,
-          starts_at: `${data.slotDate}T${data.slotLabel.split("–")[0]}:00+05:30`,
+          starts_at: startsAt(data.slotDate, data.slotLabel),
           slot_label: data.slotLabel,
           status: "booked",
         })
@@ -430,7 +441,7 @@ export const bookForChild = createServerFn({ method: "POST" })
         child_id: child.id,
         clinic_id: child.clinic_id,
         day: data.slotDate,
-        starts_at: `${data.slotDate}T${data.slotLabel.split("–")[0]}:00+05:30`,
+        starts_at: startsAt(data.slotDate, data.slotLabel),
         slot_label: data.slotLabel,
         status: "booked",
       })
