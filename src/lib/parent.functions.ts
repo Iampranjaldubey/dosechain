@@ -175,7 +175,7 @@ export const createBooking = createServerFn({ method: "POST" })
     } else {
       const { data: g, error } = await a
         .from("guardians")
-        .insert({ name: data.parentName, phone: data.phone, lang: data.lang })
+        .insert({ name: data.parentName, phone: data.phone, lang: data.lang, clinic_id: settings.clinic_id })
         .select("id")
         .single();
       if (error || !g) throw new Error("Could not create guardian");
@@ -202,6 +202,7 @@ export const createBooking = createServerFn({ method: "POST" })
     const whereByCode = new Map(data.history.map((h) => [h.code, h.where]));
     const givenRows = data.history.map((h) => ({
       child_id: child.id,
+      clinic_id: clinicId,
       code: h.code,
       status: "given" as const,
       due_date: h.givenOn,
@@ -232,6 +233,7 @@ export const createBooking = createServerFn({ method: "POST" })
       await a.from("child_doses").insert(
         first.doses.map((code) => ({
           child_id: child.id,
+          clinic_id: clinicId,
           code,
           status: "booked" as const,
           due_date: data.slotDate,
@@ -244,6 +246,7 @@ export const createBooking = createServerFn({ method: "POST" })
     const plannedRows = plan.slice(1).flatMap((v: PlannedVisit) =>
       v.doses.map((code) => ({
         child_id: child.id,
+        clinic_id: clinicId,
         code,
         status: "planned" as const,
         due_date: v.date,
@@ -380,7 +383,7 @@ export const startChild = createServerFn({ method: "POST" })
       guardianId = existing.id;
       await a.from("guardians").update({ name: data.parentName, lang: data.lang }).eq("id", guardianId);
     } else {
-      const { data: g, error } = await a.from("guardians").insert({ name: data.parentName, phone: data.phone, lang: data.lang }).select("id").single();
+      const { data: g, error } = await a.from("guardians").insert({ name: data.parentName, phone: data.phone, lang: data.lang, clinic_id: settings.clinic_id }).select("id").single();
       if (error || !g) throw new Error("Could not create parent record");
       guardianId = g.id;
     }
@@ -395,12 +398,12 @@ export const startChild = createServerFn({ method: "POST" })
 
     const whereByCode = new Map(data.history.map((h) => [h.code, h.where]));
     const givenRows = data.history.map((h) => ({
-      child_id: child.id, code: h.code, status: "given" as const, due_date: h.givenOn, given_on: h.givenOn, where_given: whereByCode.get(h.code) ?? "clinic",
+      child_id: child.id, clinic_id: settings.clinic_id, code: h.code, status: "given" as const, due_date: h.givenOn, given_on: h.givenOn, where_given: whereByCode.get(h.code) ?? "clinic",
     }));
     if (givenRows.length > 0) await a.from("child_doses").insert(givenRows);
 
     const plannedRows = plan.flatMap((v: PlannedVisit) =>
-      v.doses.map((code) => ({ child_id: child.id, code, status: "planned" as const, due_date: v.date })),
+      v.doses.map((code) => ({ child_id: child.id, clinic_id: settings.clinic_id, code, status: "planned" as const, due_date: v.date })),
     );
     if (plannedRows.length > 0) await a.from("child_doses").insert(plannedRows);
 
