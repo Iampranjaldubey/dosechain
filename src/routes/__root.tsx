@@ -79,6 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "pFnYg5mJ_hc2mlIRxdCDKIfzg_eQf702fUtNPeIkF3Q" },
       { title: "DoseChain — Nanhe Kadam Child Clinic, Indore" },
       {
         name: "description",
