@@ -87,16 +87,16 @@ export const getDashboard = createServerFn({ method: "POST" })
     const now = await nowIso(sb);
     const today = todayIst(now);
     const [visits, bites, vials, pending, impact, clock] = await Promise.all([
-      scope(sb.from("visits")).select("id, kind, day, slot_label, status, bite_case_id, children(name, public_token)").eq("day", today).order("slot_label"),
-      scope(sb.from("bite_cases")).select("id, patient_name, age_years, category, animal, bitten_on, public_token, bite_doses(id, day_offset, due_date, status)").eq("status", "active").order("bitten_on", { ascending: false }),
-      scope(sb.from("vials")).select("*").order("opened_at", { ascending: false }).limit(3),
-      scope(sb.from("plan_changes")).select("id", { count: "exact", head: true }).eq("status", "pending"),
-      scope(sb.from("impact_events")).select("kind, minutes_saved, created_at").gte("created_at", new Date(Date.now() - 28 * 864e5).toISOString()),
+      scope(sb.from("visits").select("id, kind, day, slot_label, status, bite_case_id, children(name, public_token)")).eq("day", today).order("slot_label"),
+      scope(sb.from("bite_cases").select("id, patient_name, age_years, category, animal, bitten_on, public_token, bite_doses(id, day_offset, due_date, status)")).eq("status", "active").order("bitten_on", { ascending: false }),
+      scope(sb.from("vials").select("*")).order("opened_at", { ascending: false }).limit(3),
+      scope(sb.from("plan_changes").select("id", { count: "exact", head: true })).eq("status", "pending"),
+      scope(sb.from("impact_events").select("kind, minutes_saved, created_at")).gte("created_at", new Date(Date.now() - 28 * 864e5).toISOString()),
       sb.from("app_clock").select("demo_now").eq("id", 1).single(),
     ]);
-    const { data: recallRaw } = await scope(sb.from("visits")).select("id, day, status, children(name, public_token)").eq("kind", "vaccine").or(`status.eq.missed,and(status.in.(booked,confirmed),day.lt.${today})`).order("day").limit(15);
-    const { data: newRaw } = await scope(sb.from("visits")).select("id, day, slot_label, children(name, public_token)").eq("kind", "vaccine").eq("status", "booked").gte("day", today).order("day").limit(20);
-    const { count: scheduledCount } = await scope(sb.from("messages")).select("id", { count: "exact", head: true }).eq("status", "scheduled");
+    const { data: recallRaw } = await scope(sb.from("visits").select("id, day, status, children(name, public_token)")).eq("kind", "vaccine").or(`status.eq.missed,and(status.in.(booked,confirmed),day.lt.${today})`).order("day").limit(15);
+    const { data: newRaw } = await scope(sb.from("visits").select("id, day, slot_label, children(name, public_token)")).eq("kind", "vaccine").eq("status", "booked").gte("day", today).order("day").limit(20);
+    const { count: scheduledCount } = await scope(sb.from("messages").select("id", { count: "exact", head: true })).eq("status", "scheduled");
     const caseById = new Map(((bites.data ?? []) as any[]).map((b) => [b.id, b]));
     const visitRows = ((visits.data ?? []) as any[]).map((v) => ({ ...v, bite_cases: v.bite_case_id ? caseById.get(v.bite_case_id) ?? null : null }));
     const ev = (impact.data ?? []) as { kind: string; minutes_saved: number }[];
@@ -262,7 +262,7 @@ async function computeRisk(sb: any, cid?: string) {
   const scope = (q: any) => (cid ? q.eq("clinic_id", cid) : q);
   const rows: { id: string; name: string; kind: "vaccine" | "bite"; due: string; token: string | null; guardianId: string | null; score: number; level: string; reasons: string[] }[] = [];
 
-  const { data: visits } = await scope(sb.from("visits")).select("id, day, status, paid_at, child_id, children(name, public_token, guardian_id)").eq("kind", "vaccine").in("status", ["booked", "confirmed"]).lte("day", horizon).gte("day", addDays(today, -14));
+  const { data: visits } = await scope(sb.from("visits").select("id, day, status, paid_at, child_id, children(name, public_token, guardian_id)")).eq("kind", "vaccine").in("status", ["booked", "confirmed"]).lte("day", horizon).gte("day", addDays(today, -14));
   for (const v of (visits ?? []) as any[]) {
     if (!v.children) continue;
     const [{ count: misses }, { data: msgs }] = await Promise.all([
@@ -274,7 +274,7 @@ async function computeRisk(sb: any, cid?: string) {
     const r = riskScore({ kind: "vaccine", daysOverdue: Math.max(0, (Date.parse(today) - Date.parse(v.day)) / 864e5), pastMisses: misses ?? 0, unansweredReminders: Math.min(unanswered, 3), confirmed: v.status === "confirmed", paid: !!v.paid_at });
     rows.push({ id: v.id, name: v.children.name, kind: "vaccine", due: v.day, token: v.children.public_token, guardianId: v.children.guardian_id, ...r });
   }
-  const { data: doses } = await scope(sb.from("bite_doses")).select("id, day_offset, due_date, status, bite_cases!inner(patient_name, public_token, guardian_id, category, status)").in("status", ["booked", "planned"]).lte("due_date", horizon).eq("bite_cases.status", "active").gt("day_offset", 0);
+  const { data: doses } = await scope(sb.from("bite_doses").select("id, day_offset, due_date, status, bite_cases!inner(patient_name, public_token, guardian_id, category, status)")).in("status", ["booked", "planned"]).lte("due_date", horizon).eq("bite_cases.status", "active").gt("day_offset", 0);
   for (const d of (doses ?? []) as any[]) {
     const overdue = Math.max(0, (Date.parse(today) - Date.parse(d.due_date)) / 864e5);
     const r = riskScore({ kind: "bite", daysOverdue: overdue, pastMisses: overdue > 0 ? 1 : 0, unansweredReminders: 1, biteCategory: d.bite_cases.category, confirmed: false, paid: false });
@@ -298,9 +298,9 @@ export const getBriefing = createServerFn({ method: "POST" })
     const scope = (q: any) => (cid ? q.eq("clinic_id", cid) : q);
     const { today, rows } = await computeRisk(sb, cid);
     const [{ count: visitsToday }, { count: pending }, { count: questions }] = await Promise.all([
-      scope(sb.from("visits")).select("id", { count: "exact", head: true }).eq("day", today),
-      scope(sb.from("plan_changes")).select("id", { count: "exact", head: true }).eq("status", "pending"),
-      scope(sb.from("messages")).select("id", { count: "exact", head: true }).not("draft_reply", "is", null).eq("status", "received"),
+      scope(sb.from("visits").select("id", { count: "exact", head: true })).eq("day", today),
+      scope(sb.from("plan_changes").select("id", { count: "exact", head: true })).eq("status", "pending"),
+      scope(sb.from("messages").select("id", { count: "exact", head: true })).not("draft_reply", "is", null).eq("status", "received"),
     ]);
     const high = rows.filter((r) => r.level === "high");
     const facts = { visitsToday, pendingApprovals: pending, questionsWaiting: questions, highRisk: high.slice(0, 5).map((h) => `${h.name} (${h.reasons.join(", ")})`), bitesDue: rows.filter((r) => r.kind === "bite").length };
