@@ -24,6 +24,31 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "MedicalClinic",
+          name: "Nanhe Kadam Child Clinic",
+          medicalSpecialty: "Pediatric",
+          url: "https://dosechain.lovable.app/",
+          telephone: "+919876543210",
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "214, Silver Palm Plaza, Vijay Nagar",
+            addressLocality: "Indore",
+            addressRegion: "Madhya Pradesh",
+            addressCountry: "IN",
+          },
+          openingHoursSpecification: [
+            { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "10:00", closes: "13:00" },
+            { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "17:30", closes: "20:30" },
+            { "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: "10:00", closes: "11:00", description: "Dog-bite cases only" },
+          ],
+        }),
+      },
+    ],
   }),
   component: Index,
 });
