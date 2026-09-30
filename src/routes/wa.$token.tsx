@@ -89,7 +89,7 @@ function Chat() {
         <header className="flex items-center gap-3 bg-primary px-4 py-3 text-primary-foreground">
           <div className="grid h-10 w-10 place-items-center rounded-full bg-primary-foreground/20 font-display text-lg">NK</div>
           <div className="flex-1">
-            <p className="font-semibold leading-tight">Nanhe Kadam Clinic</p>
+            <h1 className="font-semibold leading-tight">Nanhe Kadam Clinic</h1>
             <p className="text-xs opacity-80">{data ? `${lang === "hi" ? "के लिए" : "about"} ${data.name}` : "…"}</p>
           </div>
           <LangToggle />
